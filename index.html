@@ -1,0 +1,1176 @@
+<title>Sun Life Bridge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Light is the default (Sun Life look). Dark is opt-in from Settings. */
+:root{
+  --shell:#E4E1DA; --bg:#FAF8F4; --surface:#FFFFFF; --panel:#F2EEE7; --ink:#0E3846; --ink2:#5A6B6E; --line:#E6E0D5; --dash:#D3CBBD; --link:#0A5A8A;
+  --sun:#FFCC00; --on-sun:#0E3846; --sun-soft:#FBF0C6; --sun-ink:#5A4300; --hero1:#0E3846; --hero-fg:#FFFFFF;
+  --btn-bg:#FFCC00; --btn-fg:#0E3846; --focus:#1478A0;
+  --ok-fg:#1B7A3E; --wait-fg:#A35F00; --ask-fg:#0A5A8A; --unk-fg:#52707A; --err:#B3261E;
+  --kb-bg:#D1D3D9; --kb-key:#FFFFFF; --kb-fn:#AEB3BE; --kb-fg:#000; --kb-shadow:#898A8D;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+:root[data-theme="dark"]{
+  --shell:#061216; --bg:#0B1D24; --surface:#112C35; --panel:#16363F; --ink:#EAF4F2; --ink2:#A9C4C8; --line:#25505C; --dash:#2E5B67; --link:#8CCBEA;
+  --sun-soft:#3A3210; --sun-ink:#FFE08A; --focus:#7CC4E0; --ok-fg:#7FD79B; --wait-fg:#FFC764; --ask-fg:#8CCBEA; --unk-fg:#A9C4C8; --err:#FFB4AB;
+  --kb-bg:#1F1F21; --kb-key:#5A5A5C; --kb-fn:#3A3A3C; --kb-fg:#fff; --kb-shadow:#0006; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--shell);color:var(--ink);font-family:var(--font);font-size:15.5px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--shell)}
+button,textarea,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+p{margin:0}
+
+/* Phone drawn at the Figma frame size (440 x 956), scaled to fit */
+.stagew{display:flex;justify-content:center;align-items:flex-start;width:100%;padding-block:26px}
+.phone{position:relative;flex:none}
+.device{position:absolute;left:0;top:0;width:440px;height:956px;transform-origin:0 0;background:var(--bg);border-radius:52px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 10px #0A1316,0 24px 60px rgba(5,25,32,.35);isolation:isolate}
+@media(max-width:500px){.device{border-radius:0;box-shadow:none}.stagew{padding-block:0}}
+.sbSpace{flex:none;height:59px;background:var(--bg)}
+.homeSpace{flex:none;height:34px;background:var(--bg)}
+.statusbar{position:absolute;left:0;top:0;width:440px;height:59px;z-index:70;pointer-events:none;color:var(--ink)}
+.statusbar.light,.homebar.light{color:#fff}
+.statusbar svg{display:block}
+.homebar{position:absolute;left:0;right:0;bottom:0;height:34px;z-index:70;pointer-events:none;color:var(--ink)}
+.homebar i{position:absolute;left:148px;bottom:8px;width:144px;height:5px;border-radius:3px;background:currentColor}
+.viewport{flex:1;min-height:0;position:relative;overflow:hidden}
+.scroll{height:100%;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
+main{min-height:100%;display:flex;flex-direction:column}
+main>*{flex-shrink:0}
+main>.splash,main>.land{flex:1 0 auto}
+main:focus{outline:none}
+.ghost{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);pointer-events:none}
+.ghost>main{flex:1;min-height:0}
+
+/* app bar */
+.appbar{flex:none;display:flex;align-items:center;gap:4px;padding:4px 8px 4px 6px;background:var(--bg);border-top:6px solid var(--sun);min-height:58px}
+.appbar .brand{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;padding-left:8px}
+.sun{width:18px;height:18px;border-radius:50%;background:#ECAB23;flex:none;display:inline-block}
+.iconbtn{min-height:44px;min-width:44px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:22px;cursor:pointer;font-weight:600;font-size:15px;padding:0 8px;color:var(--ink)}
+.iconbtn:hover{background:var(--panel)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--bg);font-weight:700;font-size:15px;padding:0;min-width:36px;min-height:36px}
+.avatar:hover{background:var(--ink)}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.dates{flex:none;background:var(--sun-soft);color:var(--sun-ink);padding:7px 18px;font-size:13px;display:flex;gap:8px;align-items:center;justify-content:center}
+.dates b{font-weight:700}
+
+.pg{padding:22px 20px 28px;display:flex;flex-direction:column;gap:20px;flex:1 0 auto}
+.ctabar{position:sticky;bottom:0;margin:auto -20px -28px;padding:12px 20px 14px;background:var(--bg);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px;z-index:3}
+
+/* type: title 30/700 - lead 16 - body 15.5 - meta 13.5 - label 12 */
+h1{font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-.025em;margin:0;text-wrap:balance}
+h1:focus{outline:none}
+h2{font-weight:650;font-size:19.5px;line-height:1.25;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h3{font-size:15.5px;margin:0;font-weight:600}
+.lead{color:var(--ink2);font-size:16px;line-height:1.45}
+.muted{color:var(--ink2);font-size:14px}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.head{display:flex;flex-direction:column;gap:8px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px}
+.row>*{flex:1 1 0;min-width:0}
+.panel{background:var(--panel);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.big{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.025em}
+.kvrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px dashed var(--dash);font-size:15px}
+.kvrow:last-child{border-bottom:0}
+.kvrow>span:first-child{color:var(--ink2)}
+.kvrow>span:last-child{font-weight:600;text-align:right}
+.foot{font-size:13px;color:var(--ink2);text-align:center}
+.divider{display:flex;align-items:center;gap:12px;color:var(--ink2);font-size:13px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* buttons: one primary per screen */
+.btn{min-height:54px;border-radius:10px;padding:12px 20px;font-weight:700;border:2px solid transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;text-align:center;line-height:1.25;font-size:16px;transition:transform .12s,filter .12s}
+.btn.primary{background:var(--btn-bg);color:var(--btn-fg)}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.secondary{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.quiet{background:transparent;color:var(--link);min-height:44px;padding:6px 4px;justify-content:flex-start}
+.btn.quiet::after{content:"";width:20px;height:20px;border-radius:50%;flex:none;background:var(--sun) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8 5l5 5-5 5' fill='none' stroke='%230E3846' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat}
+.btn.plain{background:transparent;color:var(--link);min-height:44px;padding:6px 4px}
+.btn.block{width:100%}
+.btn:active{transform:scale(.985);filter:brightness(.96)}
+.btn:disabled{opacity:.85;cursor:default}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(14,56,70,.25);border-top-color:#0E3846;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* status */
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:500;align-self:flex-start;color:var(--ink)}
+.chip svg{width:20px;height:20px;flex:none}
+.ico{display:inline-flex}.ico.ok,.chip.ok svg{color:var(--ok-fg)}.ico.wait,.chip.wait svg{color:var(--wait-fg)}.ico.ask,.chip.ask svg{color:var(--ask-fg)}.ico.unk,.chip.unk svg{color:var(--unk-fg)}
+.status{display:flex;gap:14px;align-items:center;background:var(--panel);border-radius:8px;padding:16px}
+.status .si svg{width:34px;height:34px;display:block}
+.status b{display:block;font-size:17.5px;line-height:1.25}
+.status small{display:block;color:var(--ink2);font-size:13.5px}
+.hand{display:flex;align-items:center;gap:8px}
+.node{padding:8px 12px;border-radius:8px;background:var(--panel);font-weight:600;font-size:14px}
+.node.on{background:var(--sun);color:var(--on-sun)}
+.arr{color:var(--ink2);font-weight:700}
+
+/* tab bar */
+.tabs{flex:none;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px 6px}
+.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink2);padding:0;cursor:pointer;min-height:58px}
+.tab .tabi{width:64px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;transition:background .25s,transform .25s}
+.tab[aria-current="page"]{color:var(--ink)}
+.tab[aria-current="page"] .tabi{background:var(--sun);color:var(--on-sun)}
+.tab[aria-current="page"] svg.i{stroke-width:2.3}
+.tab:active .tabi{transform:scale(.92)}
+.badge{position:absolute;top:-3px;right:10px;min-width:18px;height:18px;border-radius:9px;background:var(--ink);color:var(--bg);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+/* splash + landing */
+.hero{background:var(--hero1);color:var(--hero-fg)}
+.splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:30px;text-align:center;cursor:pointer;border:0;width:100%;color:var(--hero-fg)}
+.splash .word{font-size:34px;font-weight:700;letter-spacing:-.025em}
+.splash .tag{opacity:.88;font-size:16px}
+.land{flex:1;display:flex;flex-direction:column;min-height:0}
+.land .art{flex:1.15;display:flex;align-items:flex-end;justify-content:center;padding:70px 20px 0;min-height:230px;position:relative}
+.land .art svg{width:100%;max-width:330px;height:auto;max-height:100%}
+.land .sheetbody{background:var(--bg);color:var(--ink);padding:26px 22px 48px;display:flex;flex-direction:column;gap:14px;border-radius:24px 24px 0 0}
+.dots{display:flex;gap:7px}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--line);transition:width .25s}
+.dots span.on{width:26px;border-radius:6px;background:var(--ink)}
+.skipbar{position:absolute;top:66px;right:10px;z-index:4}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:600;font-size:14px}
+.inwrap{position:relative;display:flex;align-items:center}
+.inwrap>svg.i{position:absolute;left:14px;color:var(--ink2);pointer-events:none}
+.in{width:100%;min-height:54px;border-radius:10px;border:2px solid var(--line);background:var(--surface);padding:0 14px 0 44px;font-size:16px;outline:none}
+.in:focus{border-color:var(--ink)}
+.inwrap .eye{position:absolute;right:4px}
+.codes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.codes span{min-height:68px;border-radius:12px;border:2px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700}
+.codes span.on{border-color:var(--ink)}
+.codes span.on:empty::after{content:"";width:2px;height:30px;background:var(--ink);animation:blink 1s steps(1) infinite}
+.codes span.ok{border-color:var(--ok-fg)}
+.codes.shake{animation:shake .35s}
+.codes{cursor:text}
+.authtabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--line)}
+.authtabs button{background:transparent;border:0;padding:12px 0;font-weight:700;color:var(--ink2);cursor:pointer;position:relative;font-size:16px}
+.authtabs button[aria-selected="true"]{color:var(--ink)}
+.authtabs button[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:4px;background:var(--sun);border-radius:2px}
+.brandrow{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brandrow .sun{width:30px;height:30px}
+.switch{width:56px;height:32px;border-radius:99px;border:2px solid var(--ink2);background:transparent;position:relative;cursor:pointer;flex:none;padding:0;transition:background .2s,border-color .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--ink2);transition:transform .2s,background .2s}
+.switch[aria-checked="true"]{background:var(--btn-bg);border-color:var(--btn-bg)}
+.switch[aria-checked="true"]::after{transform:translateX(24px);background:var(--btn-fg)}
+.switchrow{display:flex;align-items:center;justify-content:space-between;gap:14px}
+label.chk{display:flex;gap:12px;align-items:center;cursor:pointer;min-height:44px}
+label.chk input{width:26px;height:26px;flex:none;accent-color:var(--ink)}
+.err{color:var(--err);font-weight:600;font-size:14px}
+textarea{width:100%;background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:12px 14px;resize:none;min-height:54px;line-height:1.45;outline:none;font-size:15.5px}
+textarea:focus{border-color:var(--ink)}
+.q{display:flex;gap:2px;align-items:flex-start}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--panel);border-radius:10px;padding:3px;gap:3px}
+.seg button{min-height:42px;border:0;background:transparent;border-radius:8px;font-weight:700;cursor:pointer;color:var(--ink);font-size:14.5px}
+.seg button[aria-pressed="true"]{background:var(--btn-bg);color:var(--btn-fg)}
+
+/* rows with icons */
+.irow{display:flex;gap:14px;align-items:center;padding:6px 0}
+.irow .ic{width:44px;height:44px;border-radius:50%;background:var(--sun-soft);color:var(--sun-ink);display:flex;align-items:center;justify-content:center;flex:none}
+.irow .ic svg{width:22px;height:22px}
+.irow b{font-weight:600;font-size:15.5px;line-height:1.3}
+
+/* home */
+.banner{background:var(--sun);color:var(--on-sun);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:6px}
+.banner .big{font-size:32px}
+.banner .btn{margin-top:10px;align-self:flex-start}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--panel);border:0;border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:var(--ink);font-weight:600;font-size:14px;transition:transform .12s}
+.tile:active{transform:scale(.96)}
+.tile .ic{width:44px;height:44px;border-radius:50%;background:var(--sun);color:var(--on-sun);display:flex;align-items:center;justify-content:center}
+.tile small{font-size:12.5px;color:var(--ink2);font-weight:500}
+.group{background:var(--panel);border-radius:12px}
+.phead{display:flex;align-items:center;gap:10px;padding:14px 16px 6px;font-weight:700}
+.bullet{width:18px;height:18px;border-radius:50%;background:var(--sun);position:relative;flex:none}
+.bullet::after{content:"";position:absolute;left:5px;right:5px;top:8px;height:2px;background:var(--on-sun)}
+.group .items{background:var(--surface);margin:6px 12px 12px;padding:0 16px;border-radius:8px}
+
+/* map */
+.stats{display:flex;gap:10px}
+.stat{flex:1;background:var(--panel);border-radius:12px;padding:12px 14px;display:flex;align-items:baseline;gap:8px}
+.stat b{font-size:34px;line-height:1;font-weight:700;letter-spacing:-.03em}
+.stat span{font-size:13.5px;color:var(--ink2);font-weight:600}
+.ghead{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:transparent;border:0;padding:14px 16px;cursor:pointer;min-height:64px;color:var(--ink)}
+.ghead .t{flex:1;min-width:0}
+.ghead .t b{display:block;font-size:16px}
+.ghead .cnt{width:30px;height:30px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.ghead .chev{transition:transform .2s}
+.ghead[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.item{width:100%;display:flex;gap:12px;align-items:center;text-align:left;background:transparent;border:0;border-bottom:1px dashed var(--dash);padding:14px 0;cursor:pointer;min-height:68px;color:var(--ink)}
+.item:last-child{border-bottom:0}
+.item .ico svg{width:24px;height:24px}
+.item .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.item .body b{font-size:15.5px;font-weight:600}
+.item .body small{font-size:13.5px;color:var(--ink2)}
+.item .body em{font-style:normal;font-size:12.5px;font-weight:700;color:var(--ok-fg)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:34px 1fr;gap:14px;padding-bottom:20px;position:relative}
+.tl li::before{content:"";position:absolute;left:16px;top:34px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:var(--surface)}
+.dot.done{background:var(--ink);border-color:var(--ink);color:var(--bg)}.dot.done svg{width:18px;height:18px;stroke-width:3}.dot.now{background:var(--sun);border-color:var(--sun);color:var(--on-sun)}
+.tl b{display:block;font-size:16px;padding-top:5px}.tl .st{font-size:14px;color:var(--ink2)}
+
+/* detail */
+.more{border-radius:12px;background:var(--panel)}
+.morebtn{width:100%;display:flex;align-items:center;justify-content:space-between;background:transparent;border:0;padding:14px 16px;font-weight:600;cursor:pointer;min-height:52px;color:var(--ink)}
+.morebtn .chev{transition:transform .2s}
+.morebtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.morebody{padding:0 16px 8px}
+.sec{padding:10px 0;border-top:1px dashed var(--dash);display:flex;flex-direction:column;gap:2px;font-size:14.5px}
+.focus{border-radius:12px;overflow:hidden;border:2px solid var(--ink)}
+.focus .band{background:var(--sun);color:var(--on-sun);padding:9px 16px;font-weight:700;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px}
+.focus .in2{padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+.todo{background:var(--sun-soft);color:var(--sun-ink);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.todo b{font-size:17px;color:var(--ink);font-weight:650;line-height:1.3}
+.todo .label{color:var(--sun-ink)}
+
+/* settings */
+.slist{display:flex;flex-direction:column;background:var(--panel);border-radius:12px;padding:0 4px}
+.srow{display:flex;align-items:center;gap:14px;padding:0 12px;min-height:58px;border:0;background:transparent;border-bottom:1px dashed var(--dash);width:100%;text-align:left;cursor:pointer;color:var(--ink);font-weight:500}
+.srow:last-child{border-bottom:0}
+.srow .ic{width:34px;height:34px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink)}
+.srow .ic svg{width:19px;height:19px}
+.srow .t{flex:1;min-width:0}
+.srow.static{cursor:default}
+.sgroup{display:flex;flex-direction:column;gap:8px}
+.profile{display:flex;align-items:center;gap:14px}
+.profile .avatar{width:56px;height:56px;font-size:22px;min-width:56px}
+.profile b{font-size:18px;display:block}
+.sent{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding-top:30px}
+.sent .ic{width:72px;height:72px;border-radius:50%;background:var(--sun);color:var(--on-sun);display:flex;align-items:center;justify-content:center}
+.sent .ic svg{width:34px;height:34px}
+
+.scrim{position:absolute;inset:0;z-index:50;background:rgba(5,20,26,.55);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .25s ease-out}
+.sheet{background:var(--surface);color:var(--ink);width:100%;max-height:88%;overflow:auto;border-radius:20px 20px 0 0;padding:18px 20px 44px;display:flex;flex-direction:column;gap:14px;animation:sheetUp .34s cubic-bezier(.22,.8,.24,1)}
+.sheet header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.scrim.closing{animation:fadeOut .24s ease-in forwards}.scrim.closing .sheet{animation:sheetDown .24s ease-in forwards}
+.role{padding:10px 0;border-bottom:1px dashed var(--dash);display:flex;flex-direction:column}.role:last-child{border-bottom:0}.role b{font-size:15px}.role span{font-size:14px;color:var(--ink2)}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:110px;z-index:60;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:10px;font-weight:600;font-size:14.5px;width:max-content;max-width:90%;text-align:center}
+@keyframes blink{50%{opacity:0}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sheetDown{to{transform:translateY(100%)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{to{opacity:0}}
+
+/* keyboard */
+.kbopen .homeSpace,.kbopen .tabs{display:none}
+.kb{flex:none;height:0;overflow:hidden;transition:height .3s cubic-bezier(.22,.8,.24,1);background:var(--kb-bg);color:var(--kb-fg)}
+.kb.open{height:300px}
+.kb .kbi{height:300px;padding:10px 4px 0;display:flex;flex-direction:column;gap:11px;-webkit-user-select:none;user-select:none}
+.kb .krow{display:flex;justify-content:center;gap:6px;height:46px}
+.kb .key{flex:1 1 0;min-width:0;border:0;border-radius:6px;background:var(--kb-key);color:var(--kb-fg);font:400 22px var(--font);box-shadow:0 1px 0 var(--kb-shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.kb .key:active{background:var(--kb-fn)}
+.kb .key.fn{background:var(--kb-fn);font-size:16px;font-weight:500}
+.kb .key.fn:active{background:var(--kb-key)}
+.kb .key.w15{flex:1.45 1 0}.kb .key.w5{flex:4.7 1 0}.kb .key.w2{flex:2.1 1 0}.kb .key.on{background:var(--kb-key);color:var(--kb-fg)}
+.kb .key.ret{background:var(--sun);color:#0E3846}
+.kb .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 6px;padding:2px 4px 0}
+.kb .pad .key{height:56px;flex-direction:column;gap:0;font-size:26px;line-height:1}
+.kb .pad .key small{font-size:10px;font-weight:600;letter-spacing:.12em;margin-top:2px;min-height:12px}
+.kb .pad .key.fn{background:transparent;box-shadow:none}
+.kb .pad .key.fn:active{background:var(--kb-fn)}
+.kb .tail{margin-top:auto;height:56px}
+
+/* components v2 */
+.badge2{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:4px 10px 4px 8px;border-radius:99px;white-space:nowrap;line-height:1.2}
+.badge2 svg{width:14px;height:14px;flex:none}
+.badge2.ok{background:rgba(27,122,62,.12);color:var(--ok-fg)}.badge2.wait{background:rgba(163,95,0,.13);color:var(--wait-fg)}.badge2.ask{background:rgba(10,90,138,.12);color:var(--ask-fg)}.badge2.unk{background:rgba(90,107,110,.15);color:var(--ink2)}
+.owner{font-size:12.5px;font-weight:600;color:var(--ink);border:1px solid var(--line);background:var(--bg);padding:3px 10px;border-radius:99px;white-space:nowrap}
+.due{font-size:12.5px;font-weight:700;color:var(--sun-ink);background:var(--sun-soft);padding:3px 8px;border-radius:6px;white-space:nowrap}
+.metaline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;text-align:left;color:var(--ink);min-width:0}
+.card.next{border:1.5px solid var(--ink)}
+.cardhead{display:flex;justify-content:space-between;align-items:center}
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.stepper i{height:5px;border-radius:3px;background:var(--line)}.stepper i.on{background:var(--sun)}
+.dl{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink2);flex-wrap:wrap}.dl svg{width:18px;height:18px}.dl b{color:var(--ink)}.dlsep{width:1px;height:14px;background:var(--line)}
+.sum{flex-direction:row;align-items:center;gap:20px;cursor:pointer;font:inherit}
+.sumcol{display:flex;flex-direction:column;line-height:1.1}.sumcol b{font-size:26px;letter-spacing:-.02em}.sumcol span{font-size:12.5px;color:var(--ink2);font-weight:600;margin-top:2px}
+.sumtxt{margin-left:auto;font-weight:600;color:var(--link);font-size:14.5px}
+.seg2{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--panel);border-radius:10px;padding:3px;isolation:isolate}
+.seg2 .thumb{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/var(--n));border-radius:8px;background:var(--surface);box-shadow:0 1px 3px rgba(14,56,70,.18),0 0 0 .5px rgba(14,56,70,.06);transform:translateX(calc(var(--i)*100%));transition:transform .32s cubic-bezier(.3,.9,.3,1);z-index:0}
+.seg2 button{position:relative;z-index:1;background:transparent;border:0;min-height:40px;font-weight:600;font-size:14.5px;color:var(--ink2);cursor:pointer;border-radius:8px;transition:color .2s}
+.seg2 button[aria-pressed="true"]{color:var(--ink)}
+.gcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.g-new{border-top:3px solid var(--sun)}.g-confirm{border-top:3px solid var(--ask-fg)}.g-file{background:transparent;border-style:dashed}
+.gtag{font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:4px;flex:none}
+.g-new .gtag{background:var(--sun);color:var(--on-sun)}.g-confirm .gtag{background:rgba(10,90,138,.13);color:var(--ask-fg)}.g-file .gtag{background:rgba(27,122,62,.13);color:var(--ok-fg)}
+.gitems{padding:0 16px}
+.ghead small{display:block;font-size:13px;color:var(--ink2);font-weight:400}
+.item .sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.g-file .item .body b{color:var(--ink2);font-weight:500}
+.authtabs{position:relative}
+.authtabs .ind{position:absolute;bottom:-2px;left:0;width:50%;height:4px;background:var(--sun);border-radius:2px;transform:translateX(calc(var(--i)*100%));transition:transform .3s cubic-bezier(.3,.9,.3,1)}
+.authtabs button[aria-selected="true"]::after{display:none}
+.sugg{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--surface);border:1px dashed var(--dash);border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--ink);font-size:14.5px;font-weight:500}
+.sugg svg{color:var(--link);margin-top:1px;width:18px;height:18px}
+.srow small{display:block;color:var(--ink2);font-size:13px}
+.q textarea{field-sizing:content}
+.tb{display:flex;flex-direction:column;gap:14px}
+
+/* v10 components */
+button,[data-act],[data-go],[data-tab],.codes,label.chk,input[type=range]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:not-allowed}
+.btn:disabled:not(.loading){opacity:.45}
+.btn.loading{pointer-events:none;opacity:1}
+.btn.success{background:var(--ok-fg);color:#fff;border-color:transparent}
+.btn.danger{background:transparent;border-color:var(--err);color:var(--err)}
+.btn.danger.solid{background:var(--err);border-color:var(--err);color:#fff}
+*,*::before,*::after{cursor:none!important}
+.touch{position:fixed;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:rgba(130,134,138,.55);border:1.5px solid rgba(255,255,255,.55);pointer-events:none;z-index:9999;opacity:0;transition:opacity .15s,transform .12s,background .12s;will-change:transform}
+.touch.on{opacity:1}.touch.down{background:rgba(90,94,98,.75);transform:scale(.82)!important}
+@media (pointer:coarse){.touch{display:none}*,*::before,*::after{cursor:auto!important}}
+.btn{transition:background .15s,filter .15s,transform .1s,box-shadow .15s}
+.btn svg{width:20px;height:20px}
+.linkbtn{background:none;border:0;padding:6px 2px;min-height:44px;color:var(--link);font-weight:600;font-size:15px;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;display:inline-flex;align-items:center;gap:6px}
+.linkbtn:active{opacity:.6}.linkbtn:disabled{text-decoration:none;color:var(--ink2)}
+.linkbtn.sm{min-height:32px;font-size:14px}
+@media (hover:hover) and (pointer:fine){
+ .btn.primary:hover{filter:brightness(1.06);box-shadow:0 2px 0 rgba(14,56,70,.22)}
+ .btn.secondary:hover{background:var(--panel)}
+ .btn.plain:hover,.btn.quiet:hover{text-decoration:underline;text-underline-offset:3px}
+ .linkbtn:hover{text-decoration-thickness:2px}
+ .item:hover,.srow:hover,.qlink:hover,.opt:hover:not([disabled]){background:var(--panel)}
+ .seg2 button:hover{color:var(--ink)}
+}
+[data-calm="1"] *{animation:none!important;transition:none!important}
+.seg2 button{display:inline-flex;align-items:center;justify-content:center;gap:6px}.seg2 button svg{width:18px;height:18px}
+.acc{display:grid;grid-template-rows:0fr;transition:grid-template-rows .24s cubic-bezier(.22,.8,.24,1)}.acc.open{grid-template-rows:1fr}.acc>div{overflow:hidden;min-height:0}
+.chev{transition:transform .2s}[aria-expanded="true"]>.chev,[aria-expanded="true"] .chev{transform:rotate(180deg)}
+/* milestones */
+.ms{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.ms li{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.ms li::before{content:"";position:absolute;top:13px;left:-50%;width:100%;height:3px;background:var(--line);z-index:0}
+.ms li:first-child::before{display:none}
+.ms li.done::before,.ms li.cur::before{background:var(--ink)}
+.ms .n{position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--bg);border:2px dashed var(--dash);color:var(--ink2)}
+.ms .n svg{width:16px;height:16px;stroke-width:3}
+.ms li.done .n{background:var(--ink);border:2px solid var(--ink);color:var(--bg)}
+.ms li.cur .n{background:var(--sun);border:2px solid var(--sun);color:var(--on-sun);box-shadow:0 0 0 5px var(--sun-soft)}
+.ms li.cur{color:var(--ink);font-weight:700}
+.ms .att{position:absolute;top:-5px;left:calc(50% + 8px);width:13px;height:13px;border-radius:50%;background:var(--wait-fg);border:2px solid var(--surface);z-index:2}
+.ms.mini .n{width:22px;height:22px;font-size:11px}.ms.mini li::before{top:10px}.ms.mini{font-size:12px}
+.mslegend{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--ink2)}.mslegend i{width:10px;height:10px;border-radius:50%;background:var(--wait-fg)}
+.stage{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 16px;display:flex;flex-direction:column;gap:16px}
+.dl2{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px dashed var(--dash);padding-top:14px}.dl2 div{display:flex;flex-direction:column}.dl2 small{font-size:12.5px;color:var(--ink2)}.dl2 b{font-size:17px}
+.stage h2{margin:0}.stage p{margin:4px 0 0;color:var(--ink2);font-size:15px}
+.key{background:var(--hero1);color:var(--hero-fg);border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;gap:14px;border:1px solid rgba(255,255,255,.1)}
+.key h2{font-size:24px;line-height:1.15;color:inherit;margin:0}
+.keylab{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--sun)}
+.key .badge2{background:rgba(255,255,255,.14);color:#fff;align-self:flex-start}
+.keyrow{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.28)}.keyrow .k{opacity:.78}.keyrow b{text-align:right}
+.qlinks{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.qlink{display:flex;align-items:center;gap:12px;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);padding:13px 4px;color:var(--ink);font-size:16px;font-weight:600;min-height:62px;width:100%}
+.qlink>span{flex:1;display:flex;flex-direction:column}.qlink small{font-weight:400;color:var(--ink2);font-size:13.5px}
+.greet{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.connchip{display:inline-flex;gap:7px;align-items:center;font-size:13px;font-weight:600;color:var(--ink2);background:var(--panel);border:0;border-radius:99px;padding:5px 11px 5px 9px;min-height:30px}.connchip i{width:8px;height:8px;border-radius:50%;background:var(--ok-fg)}.connchip.off i{background:var(--unk-fg)}
+.who{font-size:13.5px;color:var(--ink2)}.who b{color:var(--ink);font-weight:600}
+.item .body{display:flex;flex-direction:column;gap:5px}
+.badge2.err{background:rgba(179,38,30,.12);color:var(--err)}
+.note{display:flex;gap:8px;font-size:13.5px;color:var(--ink2);background:var(--panel);padding:10px 12px;border-radius:8px;align-items:flex-start;line-height:1.4}.note svg{width:18px;height:18px;flex:none;margin-top:1px}
+.note.info{background:rgba(10,90,138,.1);color:var(--ink)}
+/* onboarding */
+.obhead{position:absolute;top:60px;left:6px;right:6px;display:flex;align-items:center;gap:8px;z-index:4}
+.obback{width:44px;height:44px;border:0;background:transparent;color:#fff;display:grid;place-items:center;border-radius:50%}.obback svg{width:24px;height:24px}
+.obprog{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}.obprog i{height:4px;border-radius:2px;background:rgba(255,255,255,.3);transition:background .25s}.obprog i.on{background:var(--sun)}
+.obskip{color:#fff!important;min-width:56px;font-weight:600}
+.land .art{padding-top:110px;align-items:center!important}
+.obtxt{min-height:118px;display:flex;flex-direction:column;gap:10px}
+.splash{position:relative}.splash .skipsp{position:absolute;top:62px;right:10px;color:#fff!important}
+.splash>.art,.splash>.word,.splash>.tag{animation:rise .7s cubic-bezier(.22,.8,.24,1) both}.splash>.word{animation-delay:.12s}.splash>.tag{animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* otp */
+.codes{grid-template-columns:repeat(6,1fr);gap:8px}.codes span{min-height:62px;font-size:26px;border-radius:10px;transition:border-color .15s}
+.codes span.bad{border-color:var(--err)}.codes.okc span{border-color:var(--ok-fg)}
+.otpin{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0}
+.codewrap:focus-within .codes{outline:3px solid var(--focus);outline-offset:4px;border-radius:12px}
+.vstat{min-height:22px;margin:0;font-size:14.5px;font-weight:600;color:var(--ink2)}.vstat.err{color:var(--err)}.vstat.okt{color:var(--ok-fg)}
+.field.bad .in{border-color:var(--err)}.field .err{margin:0}
+/* help */
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--ink);min-height:68px;font-weight:600;font-size:16px}
+.opt .oic{width:40px;height:40px;border-radius:10px;background:var(--panel);display:grid;place-items:center;flex:none}.opt .oic svg{width:21px;height:21px}
+.opt>span:nth-child(2){flex:1}.opt small{display:block;font-weight:400;color:var(--ink2);font-size:13.5px}
+.opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.opt .tick{opacity:0;width:22px;height:22px;flex:none}.opt[aria-pressed="true"] .tick{opacity:1}
+.opt[disabled]{opacity:.6}
+.ctxb{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sun);border-radius:8px;padding:12px 14px}
+.ctxb b{font-size:17px;line-height:1.3}
+.helpc{display:flex;flex-direction:column;gap:18px;flex:1}
+/* slider */
+.tszrow{display:flex;align-items:center;gap:12px}.tszrow .aS{font-size:14px;font-weight:700}.tszrow .aL{font-size:26px;font-weight:700;line-height:1}
+.tszlab{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);padding:0 2px}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:34px;width:100%;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--dash)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--dash)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--sun);border:2px solid var(--ink);margin-top:-11px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--sun);border:2px solid var(--ink)}
+.kvl{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-bottom:1px dashed var(--dash)}.kvl:last-child{border-bottom:0}.kvl span:first-child{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
+.grp{display:flex;flex-direction:column;gap:8px}
+.tag3{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:99px}.tag3.ok{background:rgba(27,122,62,.12);color:var(--ok-fg)}.tag3.unk{background:rgba(90,107,110,.15);color:var(--ink2)}
+.drow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px dashed var(--dash)}.drow:last-child{border-bottom:0}.drow>div{display:flex;flex-direction:column}.drow small{color:var(--ink2);font-size:13.5px}
+#toast{top:124px!important;bottom:auto!important}
+.cwrap{display:flex;flex-direction:column;gap:10px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.fprog{display:flex;gap:6px}.fprog i{flex:1;height:5px;border-radius:3px;background:var(--line)}.fprog i.on{background:var(--ink)}.fprog i.cur{background:var(--sun)}
+.fstep{font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
+.fld{display:flex;flex-direction:column;gap:6px}.fld label{font-weight:600;font-size:15.5px}.fld .hintx{font-size:13.5px;color:var(--ink2);line-height:1.4}
+.fstat{display:flex;gap:6px;align-items:center;font-size:13.5px;color:var(--ink2)}.fstat svg{width:16px;height:16px;color:var(--ok-fg)}
+.mrow{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;color:var(--ink)}
+.mrow .ud{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none;background:transparent}.mrow.un .ud{background:var(--link,#0A5A8A)}
+.mrow .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.mrow .mt b{font-weight:500;font-size:16px}.mrow.un .mt b{font-weight:700}.mrow .mt small{color:var(--ink2);font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.mrow .mt em{font-style:normal;font-size:12.5px;color:var(--ink2);font-weight:600}
+.mrow .dt{font-size:12.5px;color:var(--ink2);font-weight:600;flex:none}
+.bubx{border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;line-height:1.5;font-size:15.5px}.bubx.in{background:var(--surface);border:1px solid var(--line)}.bubx.out{background:var(--sun-soft);align-self:flex-end;max-width:90%}.bubx small{font-size:12.5px;font-weight:700;color:var(--ink2);letter-spacing:.04em}.bubx p{margin:0}
+.newpill{font-size:12px;font-weight:700;background:var(--ink);color:var(--bg);border-radius:99px;padding:2px 8px;flex:none}
+</style>
+
+<div class="touch" id="touch" aria-hidden="true"></div>
+<div class="stagew"><div class="phone" id="phone"><div class="device" id="device">
+  <div class="sbSpace" id="sbSpace"></div>
+  <header class="appbar" id="appbar" hidden>
+    <button class="iconbtn" id="backBtn" data-act="back" aria-label="Go back" hidden><svg class="i" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="brand" id="brand"></div>
+    <button class="iconbtn avatar" id="acctBtn" data-go="settings" aria-label="Settings" hidden>A</button>
+    <button class="iconbtn" id="privBtn" data-go="privacy" aria-label="Who can see what" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l2 2 3.5-4"/></svg></button>
+  </header>
+  <div id="datesWrap"></div>
+  <div class="viewport" id="viewport"><div class="scroll" id="scroll"><main id="view" tabindex="-1"></main></div></div>
+  <nav class="tabs" id="tabs" aria-label="Sections" hidden></nav>
+  <div class="homeSpace" id="homeSpace"></div>
+  <div class="kb" id="kb" aria-label="Keyboard"></div>
+  <div id="sheetRoot"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <div class="statusbar" id="statusbar" aria-hidden="true"><svg width="440" height="59" viewBox="0 0 440 59" fill="currentColor"><text x="67.5" y="37" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="17" font-weight="600">9:41</text><rect x="332.665" y="31.93" width="3.2" height="4.68" rx="1"/><rect x="337.966" y="29.48" width="3.2" height="7.13" rx="1"/><rect x="343.364" y="26.83" width="3.2" height="9.78" rx="1"/><rect x="348.665" y="24.39" width="3.2" height="12.22" rx="1"/><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M360.4 29.2Q367.4 22.6 374.4 29.2"/><path d="M363.4 32.3Q367.4 28.7 371.4 32.3"/></g><path d="M367.4 36.6l-2.3-2.6q2.3-1.9 4.6 0z"/><rect opacity=".35" x="383.5" y="24.5" width="24" height="12" rx="3.8" fill="none" stroke="currentColor"/><path opacity=".4" d="M409 28.5v4.08c.8-.35 1.33-1.15 1.33-2.04s-.53-1.69-1.33-2.04z"/><rect x="385" y="26" width="21" height="9" rx="2.5"/><rect x="158" y="12" width="124" height="36" rx="18" fill="#000"/></svg></div>
+  <div class="homebar" id="homebar" aria-hidden="true"><i></i></div>
+</div></div></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+/* ---------- data ---------- */
+var STD_END="November 30, 2026";
+var ITEMS={
+  claim:{group:"file",name:"Personal claim details",status:"received",owner:"Sun Life",short:"Nothing to do.",
+    more:[["What it is","Your name, plan and STD claim details."],["Who can see it","Sun Life’s disability team."]]},
+  stdmed:{group:"file",name:"Previous STD medical statement",status:"received",owner:"Your provider",short:"Nothing to do now.",
+    more:[["Why it matters","May help your LTD review. “On file” isn’t the same as accepted."],["Who can see it","You, Sun Life and your provider. Not your employer."]]},
+  limits:{group:"confirm",name:"Current functional limitations",status:"requested",owner:"You",short:"Review what’s changed since STD.",
+    more:[["Why it matters","LTD looks at how your condition affects daily activity and work."],["What’s known","Sun Life asked for an update. No date confirmed."],["Who can see it","You and Sun Life. Your employer may get work restrictions, not diagnosis."]]},
+  ltdmember:{group:"new",name:"LTD member statement",status:"required",owner:"You",date:"November 16, 2026",short:"Start your statement. You can pause any time.",
+    more:[["Why it matters","LTD asks for a broader picture: daily life, work history, other income."],["What’s known","Target date: November 16, 2026."],["Who can see it","You and Sun Life."]]},
+  ltdmed:{group:"new",name:"Updated medical statement",status:"awaiting",owner:"Your provider",follow:"med",short:"Ask your clinic if it was sent.",
+    more:[["What’s known","Sun Life hasn’t received it yet. That doesn’t mean your clinic hasn’t finished it."],["Why it matters","Sun Life uses it to assess LTD."],["Who can see it","You, Sun Life and your provider. Not your employer."]]},
+  ltdemp:{group:"new",name:"LTD employer statement",status:"unknown",owner:"Employer / HR",follow:"emp",short:"Ask HR if it was sent.",
+    more:[["What’s known","Status not confirmed. Bridge can’t see HR’s progress."],["Why it matters","Sun Life needs employment details to assess your claim."],["Who can see it","Your employer and Sun Life. No medical details."]]}
+};
+
+var PROV={"You":"You","Your provider":"Your healthcare provider","Employer / HR":"Your employer (HR)","Sun Life":"Sun Life"};
+var DET={
+ claim:{help:"Sun Life holds these details. Ask if anything looks wrong.",yours:"Check it looks right.",after:"Nothing further.",what:"Your name, plan and STD claim details.",why:"It identifies your claim.",can:"That it holds these details.",cannot:"Whether anything has changed since."},
+ stdmed:{help:"It’s on file. Sun Life can tell you whether it can be reused for LTD.",yours:"Nothing now.",after:"Sun Life may refer to it for LTD.",what:"The medical statement from your STD claim.",why:"It may help the LTD review. On file doesn’t mean accepted for LTD.",can:"That it received it.",cannot:"Whether it will be enough for LTD."},
+ limits:{help:"Sun Life asked for an update. Bridge can’t say what else will be needed.",yours:"Review what has changed since STD.",after:"Sun Life records your update.",what:"How your condition affects daily activity and work right now.",why:"LTD looks at current limitations, which may differ from STD.",can:"That it asked for an update.",cannot:"A date for when it will be needed beyond your target."},
+ ltdmember:{help:"Sun Life can confirm it received your statement and your target date. It can’t say whether it will be enough.",yours:"Complete it. You can pause and return.",after:"Sun Life records it as received.",what:"Your own account of daily life, work history and other income.",why:"LTD asks for a broader picture than STD.",can:"Whether it is received, and your target date.",cannot:"Whether what you wrote will be sufficient."},
+ ltdmed:{help:"Sun Life can confirm whether it has received this. It can’t see what your clinic is doing, so ask them too.",yours:"Ask your clinic whether it was sent.",after:"Sun Life records it as received. That is not an approval.",what:"A current report from your healthcare provider on your condition and limitations.",why:"Sun Life uses it to assess an LTD claim.",can:"Whether Sun Life has received it.",cannot:"Whether your clinic has started or finished it, or whether it will be enough."},
+ ltdemp:{help:"Sun Life can confirm whether it has received this. It can’t see HR’s progress, so ask them too.",yours:"Ask HR whether it was sent.",after:"Sun Life records it as received.",what:"Employment details your employer provides: role, hours and work requirements.",why:"Sun Life needs it to assess how your condition relates to your work.",can:"Whether it has received it.",cannot:"HR’s progress. Bridge can’t see inside employer systems."}
+};
+
+var FORMS={
+ ltdmember:{title:"LTD claim form",start:"Start the claim form",steps:[
+  {h:"Your details",f:[["name","Full name","text","Amira"],["phone","Phone number","tel","(555) 010-2030"],["email","Email","email","amira@example.com"],["best","Best time to reach you","text","Weekday mornings"]]},
+  {h:"Employment",f:[["emp","Employer","text",""],["role","Job title","text","Customer service team lead"],["last","Last day worked","text","MM/DD/YYYY"],["hrs","Hours per week before your leave","text",""]]},
+  {h:"Other income",f:[["oth","Do you receive other disability or income benefits?","yn"],["src","If yes, the source and start date","text",""]]}]},
+ limits:{title:"Functional limitations update",start:"Start the update",steps:[
+  {h:"Activities affected",f:[["acts","Select the activities that are affected","chk",["Standing or walking","Sitting for long periods","Lifting or carrying","Concentrating","Using a computer","Driving"]]]},
+  {h:"Details",f:[["since","When did this change start?","text","MM/DD/YYYY"],["restr","Has your provider given you any work restrictions?","yn"]]}]}
+};
+function fstate(id){return S.forms[id]||(S.forms[id]={step:0,v:{}})}
+function fprogress(id){var f=S.forms[id];if(!f||S.done[id])return false;return f.step>0||Object.keys(f.v).some(function(k){return f.v[k]})}
+function fresume(){return Object.keys(FORMS).filter(fprogress)}
+var MSGS=[
+ {id:"m1",subj:"Checking in on your medical statement",date:"Oct 23",req:"ltdmed",body:["Hello Amira,","We haven’t received the updated medical statement from your clinic yet. The target date is Nov 16.","If your clinic needs anything from us, let me know. You can reply here or call me."]},
+ {id:"m2",subj:"Your move from STD to LTD",date:"Oct 20",req:null,body:["Hello Amira,","I’m your case manager for the move from STD to LTD. I can explain what Sun Life needs and who provides it.","I can’t tell you the outcome of a review. Reply here any time you have a question."]},
+ {id:"m3",subj:"About your member statement",date:"Oct 16",req:"ltdmember",body:["Hello Amira,","Your member statement can be completed in more than one sitting. Save your progress and come back when you have the energy."]}
+];
+function unreadN(){return MSGS.filter(function(m){return !S.inbox.read[m.id]}).length}
+function histAdd(){var tn=(S.ctx&&ITEMS[S.ctx])?ITEMS[S.ctx].name:(TOP[HS.topic]?TOP[HS.topic].lab:"General");var d="Oct 24";S.qs.forEach(function(q){q=(q||"").trim();if(!q)return;if(!S.hist.some(function(h){return h.q===q}))S.hist.unshift({q:q,topic:tn,date:d,a:""})})}
+var ORDER=["ltdmed","ltdmember","limits","ltdemp"];
+var FOCUS={ltdmed:"Check your clinic sent the medical statement.",ltdmember:"Start your LTD member statement.",limits:"Review your current limitations.",ltdemp:"Ask HR if the employer statement was sent."};
+var GROUPS=[{k:"new",t:"New for LTD"},{k:"confirm",t:"Needs updating"},{k:"file",t:"Already on file"}];
+var STATUS={received:["ok","Received by Sun Life"],awaiting:["wait","Not yet received by Sun Life"],requested:["ask","Update requested"],required:["ask","Required"],unknown:["unk","Status not confirmed"]};
+var MSG={
+ med:"Hello, I’m following up about the updated medical statement for my disability claim. Could you confirm whether it has been completed and sent to Sun Life? If it isn’t ready, when can I expect it? Thank you.",
+ emp:"Hello, I’m following up about the LTD employer statement for my disability claim. Could you confirm whether it has been completed and sent to Sun Life? Thank you."};
+var QS=["What’s still outstanding for LTD?","Do I need to send anything else?","Can my STD information be reused?","Are there any deadlines?","How does timing affect my payments?"];
+
+/* ---------- state ---------- */
+var KEY="bridge-proto-v6";
+function fresh(){return {theme:"light",text:"m",calm:false,ctx:null,conn:"off",demoErr:false,trusted:null,mode:"simple",prefSimple:true,consent:false,done:{},msgs:{},qs:[],notes:"",qSaved:false,resume:null,forms:{},hist:[{q:"Will my STD payments continue while Sun Life reviews?",topic:"My benefits and transition",date:"Oct 21",a:"Case manager said she would confirm my plan’s terms and call me back."},{q:"Has Sun Life received my provider’s updated medical statement?",topic:"Updated medical statement",date:"Oct 22",a:"Not yet. She suggested I ask my clinic whether it was sent."}],inbox:{read:{m2:true,m3:true},replies:{},draft:{}},open:{file:false,confirm:true,"new":true}}}
+var S=fresh();
+try{var raw=localStorage.getItem(KEY);if(raw){var p0=JSON.parse(raw);for(var k0 in p0){S[k0]=p0[k0]}}}catch(e){}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var nav={screen:"splash",id:null,via:null},stack=[],lastFocus=null,timer=null,timer2=null,OTP="",OTPLEN=6,AUTH="in",FORGOT=false,MORE=false,HS={topic:null,step:0},SH={step:0,who:null,what:"status",done:false},VS={st:"idle"},SHOWOTP=false,REV=-1,revT=null,vint=null,EXPLEFT=90,RESLEFT=20,CS=S.conn||"off",FTIME=0;
+var osReduced=false;try{osReduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+function isReduced(){return osReduced||!!S.calm}
+var mq=null;try{mq=window.matchMedia("(prefers-color-scheme: dark)")}catch(e){}
+var TS=["s","m","l","xl"],TSL=["Small","Default","Large","Extra Large"];
+function applyPrefs(){var dark=S.theme==="dark"||(S.theme==="system"&&mq&&mq.matches);var d=document.documentElement;d.setAttribute("data-theme",dark?"dark":"light");d.setAttribute("data-calm",S.calm?"1":"0");var sc=$("#scroll");if(sc)sc.style.zoom=({s:".92",m:"1",l:"1.12",xl:"1.25"})[S.text]||"1"}
+try{mq&&mq.addEventListener("change",function(){if(S.theme==="system")applyPrefs()})}catch(e){}
+
+/* ---------- icons ---------- */
+function L(d){return '<svg class="i" viewBox="0 0 24 24">'+d+'</svg>'}
+var P={
+ home:'<path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z"/>',today:'<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',map:'<path d="M5 6h14M5 12h14M5 18h9"/>',help:'<path d="M5 5h14v10H10l-5 4z"/>',
+ down:'<path d="M6 9l6 6 6-6"/>',right:'<path d="M9 5l7 7-7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/>',
+ mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+ eye:'<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/>',bell:'<path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',shield:'<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l2 2 3.5-4"/>',
+ out:'<path d="M10 5H5v14h5M15 8l4 4-4 4M9 12h10"/>',face:'<path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2M9 10v1M15 10v1M9 15c1.5 1.3 4.5 1.3 6 0"/>',
+ doc:'<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',people:'<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.8-3.2 3-5 6-5s5.2 1.8 6 5M15.5 14.5c2.5-.3 4.5.9 5.5 4"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',phone:'<path d="M6 3h3l2 5-2.5 1.5a11 11 0 005 5L15 12l5 2v3a2 2 0 01-2 2A15 15 0 013 5a2 2 0 013-2z"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',plus:'<path d="M12 5v14M5 12h14"/>',refresh:'<path d="M20 11a8 8 0 10-2.3 6M20 5v6h-6"/>',left:'<path d="M15 5l-7 7 7 7"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>',moon:'<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>',device:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3A4 4 0 0011 18.7l1-1"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',lockc:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>'};
+function I(n){return L(P[n])}
+var CI={
+ ok:'<svg viewBox="0 0 16 16" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="M4.8 8.2l2.1 2.1L11.2 6" stroke="#fff" stroke-width="1.9"/></svg>',
+ wait:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.3 1.5"/></svg>',
+ ask:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.8v3.8M8 11v.1"/></svg>',
+ unk:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6.5" stroke-dasharray="2.5 2.5"/><path d="M6.3 6.4a1.8 1.8 0 113 1.3c-.7.5-1.3.8-1.3 1.6M8 11.3v.1"/></svg>'};
+function chip(st){var s=STATUS[st];return '<span class="chip '+s[0]+'">'+CI[s[0]]+esc(s[1])+'</span>'}
+function bridgeArt(w){
+  var h="",i,t,x,y;
+  for(i=1;i<=9;i++){t=i/10;x=10+300*t;y=(1-t)*(1-t)*130+2*t*(1-t)*20+t*t*130;h+='<line x1="'+x.toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="132" />'}
+  return '<svg viewBox="0 0 320 170" width="'+(w||320)+'" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><circle cx="236" cy="58" r="30" fill="#ECAB23" stroke="none"/><path d="M10 130Q160 20 310 130"/>'+h+'<path d="M0 132H320" stroke-width="5"/><path d="M0 150q20-8 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0" opacity=".45"/></svg>';
+}
+function slideArt(n){
+  var base='<svg viewBox="0 0 320 210" fill="none" aria-hidden="true" font-family="Inter,system-ui,sans-serif" font-weight="700">';
+  if(n===0)return base+'<circle cx="250" cy="48" r="26" fill="#ECAB23"/><rect x="18" y="104" width="104" height="70" rx="10" fill="#fff" fill-opacity=".16" stroke="#fff" stroke-width="3"/><rect x="198" y="104" width="104" height="70" rx="10" fill="#fff" stroke="#fff" stroke-width="3"/><text x="70" y="146" fill="#fff" font-size="22" text-anchor="middle">STD</text><text x="250" y="146" fill="#0E3846" font-size="22" text-anchor="middle">LTD</text><path d="M126 130Q160 70 194 130" stroke="#FFCC00" stroke-width="5" stroke-linecap="round"/><path d="M178 122l9 11 10-9" stroke="#FFCC00" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if(n===1)return base+'<g stroke="#fff" stroke-width="3" stroke-opacity=".7"><path d="M60 54L160 110M260 54L160 110M160 180V110"/></g><circle cx="160" cy="110" r="34" fill="#FFCC00"/><text x="160" y="115" fill="#0E3846" font-size="14" text-anchor="middle">Sun Life</text><g fill="#fff"><circle cx="60" cy="54" r="26"/><circle cx="260" cy="54" r="26"/><circle cx="160" cy="180" r="26"/></g><g fill="#0E3846" font-size="12" text-anchor="middle"><text x="60" y="58">You</text><text x="260" y="58">HR</text><text x="160" y="184">Doctor</text></g></svg>';
+  return base+'<path d="M20 180h80v-34h70v-34h70v-34h60" stroke="#fff" stroke-width="3" stroke-opacity=".6" stroke-linejoin="round"/><circle cx="60" cy="168" r="14" fill="#fff" fill-opacity=".4"/><circle cx="135" cy="134" r="14" fill="#fff" fill-opacity=".4"/><circle cx="205" cy="100" r="18" fill="#FFCC00"/><path d="M198 100l5 5 9-10" stroke="#0E3846" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="268" cy="66" r="14" fill="#fff" fill-opacity=".25" stroke="#fff" stroke-dasharray="4 4"/></svg>';
+}
+
+/* ---------- helpers ---------- */
+function outstanding(){return ORDER.filter(function(id){return ITEMS[id].status!=="received"})}
+function onFile(){return Object.keys(ITEMS).filter(function(k){return ITEMS[k].status==="received"})}
+function nextTask(){for(var i=0;i<ORDER.length;i++){if(!S.done[ORDER[i]])return ORDER[i]}return null}
+function leftCount(){return ORDER.filter(function(id){return !S.done[id]}).length}
+function toast(t){var el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},3000)}
+function cta(html){return '<div class="ctabar">'+html+'</div>'}
+function copyText(text,fallbackEl,okMsg){
+  function fb(){try{if(fallbackEl){fallbackEl.focus();fallbackEl.select();}var ok=document.execCommand&&document.execCommand("copy");toast(ok?okMsg:"Text selected. Copy it from your device.")}catch(e){toast("Text selected. Copy it from your device.")}}
+  try{navigator.clipboard.writeText(text).then(function(){toast(okMsg)},fb)}catch(e){fb()}
+}
+function field(id,label,icon,val,type){
+  return '<div class="field"><label for="'+id+'">'+label+'</label><div class="inwrap">'+I(icon)+'<input class="in" id="'+id+'" type="'+(type||"text")+'" value="'+esc(val)+'" autocomplete="off" inputmode="none">'+(type==="password"?'<button class="iconbtn eye" type="button" data-act="eye" data-id="'+id+'" aria-label="Show password">'+I("eye")+'</button>':'')+'</div></div>';
+}
+
+function badge(st){var s=STATUS[st];return '<span class="badge2 '+s[0]+'">'+CI[s[0]]+esc(s[1])+'</span>'}
+var OWN={"You":"You","Your provider":"Provider","Employer / HR":"HR","Sun Life":"Sun Life"};
+function ownerTag(it){return '<span class="owner">'+esc(OWN[it.owner]||it.owner)+'</span>'}
+function segHtml(act,opts,cur,label){var i=0;opts.forEach(function(o,k){if(o[0]===cur)i=k});return '<div class="seg2" role="group" aria-label="'+label+'" style="--n:'+opts.length+';--i:'+i+'"><span class="thumb"></span>'+opts.map(function(o){return '<button data-act="'+act+'" data-id="'+o[0]+'" aria-pressed="'+(o[0]===cur)+'">'+o[1]+'</button>'}).join("")+'</div>'}
+/* ---------- screens ---------- */
+function datesStrip(){return '<div class="dates"><b>STD ends Nov 30</b><span>·</span><span>Member statement due Nov 16</span></div>'}
+function resumeCard(){
+  var fr=fresume().map(function(id){var f=S.forms[id],n=FORMS[id].steps.length;return '<section class="ctxb"><span class="label">Saved for later</span><b>'+esc(FORMS[id].title)+'</b><span class="muted">Step '+(Math.min(f.step,n)+1)+' of '+(n+1)+' · your answers are saved</span><button class="btn primary" data-go="form" data-id="'+id+'">Continue</button></section>'}).join("");
+  if(!S.resume||!ITEMS[S.resume])return fr;
+  var n=S.qs.filter(Boolean).length;
+  return '<section class="ctxb"><span class="label">Saved for later</span><b>'+esc(ITEMS[S.resume].name)+'</b>'+(n?'<span class="muted">'+n+' question'+(n>1?'s':'')+' saved on this device</span>':'')+'<button class="btn primary" data-act="resume">Continue</button></section>'+fr;
+}
+function ms(cur,attn,mini){
+  var N=["Prepare","Gather","Review","Decision"],F=["Transition preparation","Requirements gathering","Sun Life review","Decision and next steps"];
+  return '<ol class="ms'+(mini?' mini':'')+'" aria-label="Transition stages">'+N.map(function(n,i){
+    var st=i<cur?"done":i===cur?"cur":"up";
+    return '<li class="'+st+'" aria-label="'+F[i]+', '+(st==="done"?'completed':st==="cur"?'current'+(attn?', needs attention':''):'upcoming')+'">'+(st==="cur"&&attn?'<span class="att" aria-hidden="true"></span>':'')+'<span class="n">'+(st==="done"?I("check"):(i+1))+'</span><span>'+n+'</span></li>'}).join("")+'</ol>';
+}
+function swapIn(el,html,dir){if(!el)return;function put(){el.innerHTML=html}
+  if(isReduced()){put();return}
+  var o=el.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX("+(-10*dir)+"px)"}],{duration:110,easing:"ease-in"});
+  o.onfinish=function(){put();el.animate([{opacity:0,transform:"translateX("+(10*dir)+"px)"},{opacity:1,transform:"none"}],{duration:200,easing:"cubic-bezier(.22,.8,.24,1)"})}}
+function grp(label,html){return '<section class="grp"><span class="label">'+label+'</span>'+html+'</section>'}
+function fielderr(el,msg){var f=el.closest(".field");if(!f)return;f.classList.add("bad");el.setAttribute("aria-invalid","true");var p=f.querySelector(".err");if(!p){p=document.createElement("p");p.className="err";p.id=el.id+"-err";p.setAttribute("role","alert");f.appendChild(p);el.setAttribute("aria-describedby",p.id)}p.textContent=msg}
+function clearerr(el){var f=el.closest&&el.closest(".field");if(!f)return;f.classList.remove("bad");el.removeAttribute("aria-invalid");var p=f.querySelector(".err");if(p)p.remove()}
+function fmt(n){return Math.floor(n/60)+":"+("0"+(n%60)).slice(-2)}
+function startVerify(){OTP="";VS={st:"idle"};REV=-1;SHOWOTP=false;EXPLEFT=90;RESLEFT=20}
+function vSplash(){
+  return '<div class="splash hero" data-act="skiptoland"><button class="btn plain skipsp" data-act="skiptoland">Skip</button><span class="art" style="color:#fff">'+bridgeArt(240)+'</span><span class="word">Sun Life Bridge</span><span class="tag">Your next step, made clearer.</span></div>';
+}
+var SLIDES=[["See what’s changing","What’s on file, what needs updating, and what’s new for LTD."],["Know who does what","You, your doctor, HR and Sun Life each have a part."],["One step at a time","Save your place and come back whenever you’re ready."]];
+function obState(i){var last=i===SLIDES.length-1;return {back:i>0,skip:!last,cta:last?"Get started":"Next"}}
+function vLand(i){
+  i=+i||0;var s=SLIDES[i],o=obState(i);
+  return '<div class="land hero"><div class="obhead"><button class="obback" id="obback" data-act="obback" aria-label="Back"'+(o.back?'':' style="visibility:hidden" tabindex="-1" aria-hidden="true"')+'>'+I("left")+'</button><div class="obprog" id="obprog" role="img" aria-label="Step '+(i+1)+' of '+SLIDES.length+'">'+SLIDES.map(function(_,k){return '<i class="'+(k<=i?'on':'')+'"></i>'}).join("")+'</div><button class="btn plain obskip" id="obskip" data-go="auth" data-replace="1"'+(o.skip?'':' style="visibility:hidden" tabindex="-1" aria-hidden="true"')+'>Skip</button></div>'+
+  '<div class="art" id="obart">'+slideArt(i)+'</div><div class="sheetbody"><div class="obtxt" id="obtxt"><h1 tabindex="-1">'+esc(s[0])+'</h1><p class="lead">'+esc(s[1])+'</p></div><button class="btn primary block" id="obcta" data-act="obnext">'+o.cta+'</button></div></div>';
+}
+function setOb(i,dir){
+  nav.id=i;var s=SLIDES[i],o=obState(i);
+  swapIn($("#obart"),slideArt(i),dir);swapIn($("#obtxt"),'<h1 tabindex="-1">'+esc(s[0])+'</h1><p class="lead">'+esc(s[1])+'</p>',dir);
+  [].forEach.call(document.querySelectorAll("#obprog i"),function(b,k){b.className=k<=i?"on":""});$("#obprog").setAttribute("aria-label","Step "+(i+1)+" of "+SLIDES.length);
+  var b=$("#obback");b.style.visibility=o.back?"":"hidden";b.tabIndex=o.back?0:-1;b.setAttribute("aria-hidden",o.back?"false":"true");
+  var k=$("#obskip");k.style.visibility=o.skip?"":"hidden";k.tabIndex=o.skip?0:-1;k.setAttribute("aria-hidden",o.skip?"false":"true");
+  $("#obcta").textContent=o.cta;
+}
+function authForm(){var si=AUTH==="in";return (si?'':field("nm","Full name","user","Amira Rahman"))+field("em","Email","mail","amira@example.com")+field("pw","Password","lock","sunlife123","password")+(si?'<button class="linkbtn" style="align-self:flex-end;min-height:36px" data-go="forgot">Forgot password?</button>':'<p class="muted" style="margin:0">At least 8 characters.</p>')}
+function vAuth(){
+  var si=AUTH==="in";
+  return '<div class="pg" style="gap:18px;padding-top:30px"><div class="brandrow"><span class="sun" aria-hidden="true"></span>Sun Life Bridge</div>'+
+  '<div class="head"><h1 tabindex="-1">Welcome to Bridge</h1><p class="lead">Sign in or create an account.</p></div>'+
+  '<div class="authtabs" role="tablist" style="--i:'+(si?0:1)+'"><span class="ind"></span><button role="tab" aria-selected="'+si+'" data-act="authtab" data-id="in">Sign in</button><button role="tab" aria-selected="'+!si+'" data-act="authtab" data-id="up">Sign up</button></div>'+
+  '<div class="stack" style="gap:14px;min-height:292px" id="authForm">'+authForm()+'</div>'+
+  '<button class="btn primary block" id="authBtn" data-act="signin">'+(si?'Sign in':'Create account')+'</button>'+
+  '<div class="divider">or</div>'+
+  '<button class="btn secondary block" id="ssoBtn" data-act="sso"><span class="sun" aria-hidden="true"></span>Continue with Sun Life account</button><p class="note info" id="authNote" role="status" hidden>'+I("info")+'<span>Your Sun Life account is already connected.</span></p></div>';
+}
+function vForgot(){
+  if(FORGOT)return '<div class="pg"><div class="sent"><div class="ic">'+I("mail")+'</div><h1 tabindex="-1">Check your email</h1><p class="lead">If an account exists for that address, a reset link is on its way. This is a simulation.</p></div>'+cta('<button class="btn primary block" data-act="backtosignin">Back to sign in</button><button class="linkbtn" id="rsend" data-act="resendreset" style="align-self:center">Resend link</button>')+'</div>';
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">Reset password</h1><p class="lead">Enter your email and we’ll send a reset link.</p></div>'+field("fe","Email","mail","amira@example.com")+cta('<button class="btn primary block" id="sendbtn" data-act="sendreset">Send reset link</button>')+'</div>';
+}
+function boxes(){var h="";for(var i=0;i<OTPLEN;i++){var c=OTP[i],cls=(OTP.length===i&&VS.st!=="loading"?"on":"")+(VS.st==="bad"?" bad":"");var shown=c?((SHOWOTP||REV===i)?c:"*"):"";h+='<span class="'+cls+'" aria-hidden="true">'+shown+'</span>'}return h}
+function vVerify(){
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">Enter your code</h1><p class="lead">We sent a 6-digit code to the phone ending in 42.</p><p class="muted" style="margin-top:6px">For this walkthrough, enter any 6 digits.</p></div>'+
+  '<div class="codewrap" style="position:relative"><div class="codes" id="codes" data-act="otpfocus" role="group" aria-label="6-digit verification code">'+boxes()+'</div><input class="otpin" id="otpnative" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Verification code" value=""></div>'+
+  '<div style="display:flex;justify-content:space-between;align-items:center"><button class="linkbtn" id="otpshow" data-act="otpshow">Show code</button><span class="muted" id="vexp"></span></div>'+
+  '<p class="vstat" id="vstat" role="alert"></p>'+
+  
+  '<button class="linkbtn" id="vres" data-act="resend" style="align-self:flex-start">Resend code</button>'+
+  cta('<button class="btn primary block" id="vbtn" data-act="verify">Verify</button>')+'</div>';
+}
+function refreshVerify(){
+  var c=$("#codes");if(!c)return;c.innerHTML=boxes();
+  var m="",cls="";
+  if(VS.st==="bad"){m="That code isn’t right. Check it and try again.";cls="err"}else if(VS.st==="expired"){m="This code has expired. Request a new one.";cls="err"}else if(VS.st==="ok"){m="Code verified.";cls="okt"}else if(VS.st==="loading"){m="Checking…"}else if(VS.st==="short"){m="Enter all 6 digits.";cls="err"}
+  var vs=$("#vstat");if(vs.textContent!==m)vs.textContent=m;vs.className="vstat "+cls;
+  $("#vexp").textContent=VS.st==="expired"?"Expired":(VS.st==="ok"?"":"Expires in "+fmt(EXPLEFT));
+  var r=$("#vres");r.disabled=RESLEFT>0;r.textContent=RESLEFT>0?"Resend in "+fmt(RESLEFT):"Resend code";
+  var b=$("#vbtn");b.disabled=VS.st==="expired"||VS.st==="loading"||VS.st==="ok";b.classList.toggle("loading",VS.st==="loading");b.classList.toggle("success",VS.st==="ok");
+  b.innerHTML=VS.st==="loading"?'<span class="spin" aria-hidden="true"></span>Verifying…':VS.st==="ok"?I("check")+'Verified':'Verify';
+  var n=$("#otpnative");if(n&&n.value!==OTP)n.value=OTP;
+  $("#otpshow").textContent=SHOWOTP?"Hide code":"Show code";
+}
+function vtick(){if(nav.screen!=="verify"){clearInterval(vint);return}
+  if(EXPLEFT>0)EXPLEFT--;if(RESLEFT>0)RESLEFT--;
+  if(EXPLEFT===0&&VS.st!=="ok"&&VS.st!=="loading")VS.st="expired";
+  refreshVerify()}
+function vGate(){
+  return '<div class="pg" style="gap:18px"><div class="head"><h1 tabindex="-1">Connect to see your plan</h1><p class="lead">Bridge shows your claim, requirements and dates once your Sun Life account is connected.</p></div><div class="note">'+I("info")+'<span>Simulation. No real connection is made and no credentials are requested.</span></div>'+cta('<button class="btn primary block" data-go="conn">Connect to Sun Life</button>')+'</div>';
+}
+function vHome(){
+  var nx=nextTask(),it=nx?ITEMS[nx]:null,left=leftCount();
+  var stage='<section class="stage"><div class="cardhead"><span class="label">Your transition</span><button class="linkbtn sm" data-go="overview">View journey</button></div>'+ms(1,true)+'<div><h2>Requirements gathering</h2><p>Sun Life needs a few things before its LTD review.</p></div><div class="dl2"><div><small>Member statement target</small><b>Nov 16, 2026</b></div><div><small>STD ends</small><b>Nov 30, 2026</b></div></div></section>';
+  var key=it?'<section class="key"><span class="keylab">Next action</span><h2>'+esc(it.name)+'</h2>'+badge(it.status)+'<div class="keyrow"><span class="k">Provided by</span><b>'+esc(PROV[it.owner])+'</b></div><button class="btn primary block" data-go="detail" data-id="'+nx+'">See what to do next</button></section>':'<section class="key"><span class="keylab">Next action</span><h2>You’ve done your part for now.</h2><button class="btn primary block" data-go="summary">See summary</button></section>';
+  var links='<nav class="qlinks" aria-label="More"><button class="qlink" data-tab="map"><span>View my plan<small>'+left+' need action · '+onFile().length+' already on file</small></span>'+I("right")+'</button><button class="qlink" data-tab="support"><span>Get help<small>Prepare questions for your case manager</small></span>'+I("right")+'</button><button class="qlink" data-go="inbox"><span>Inbox<small>'+(unreadN()?unreadN()+' new from your case manager':'Messages from your case manager')+'</small></span>'+I("right")+'</button><button class="qlink" data-go="dates"><span>Important dates &amp; income questions<small>STD ends Nov 30 · LTD decision not determined</small></span>'+I("right")+'</button></nav>';
+  var fl=Object.keys(FORMS).map(function(id){var f=S.forms[id],n=FORMS[id].steps.length,dn=S.done[id],pr=fprogress(id);return '<button class="srow" data-go="form" data-id="'+id+'"><span class="ic">'+I("doc")+'</span><span class="t">'+esc(FORMS[id].title)+'<small>'+(dn?'Marked done':pr?'Step '+(Math.min(f.step,n)+1)+' of '+(n+1)+' · saved':'Not started · you can save and return')+'</small></span>'+I("right")+'</button>'}).join("");
+  var forms='<section class="stack" style="gap:8px"><span class="label">Forms to fill in</span><div class="slist">'+fl+'</div></section>';
+  return '<div class="pg" style="gap:16px"><div class="greet"><h1 tabindex="-1">Hi, Amira</h1><button class="connchip" data-go="conn" aria-label="Sun Life connection: connected"><i></i>Connected to Sun Life</button></div>'+resumeCard()+stage+key+forms+links+'</div>';
+}
+function vIntro(){
+  return '<div class="hero" style="padding:20px 20px 24px"><div style="color:#fff;text-align:center">'+bridgeArt(250)+'</div></div>'+
+  '<div class="pg"><div class="head"><h1 tabindex="-1">Your next step</h1><p class="lead">STD ends soon. Bridge shows what LTD needs.</p></div>'+
+  '<div class="panel"><p class="label">STD ends</p><p class="big">'+STD_END+'</p></div>'+
+  '<p class="foot">Sun Life makes every claim decision.</p>'+
+  cta('<button class="btn primary block" data-act="intronext">See my plan</button><button class="btn quiet" data-act="sheet" data-id="ltd">How does LTD work?</button>')+'</div>';
+}
+function vConsent(){
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">Before we start</h1></div>'+
+  '<div class="stack" style="gap:6px"><div class="irow"><span class="ic">'+I("doc")+'</span><b>Shows what Sun Life has recorded</b></div><div class="irow"><span class="ic">'+I("lock")+'</span><b>Never changes your claim</b></div><div class="irow"><span class="ic">'+I("people")+'</span><b>Your employer doesn’t see diagnosis details</b></div></div>'+
+  '<div class="panel"><div class="switchrow"><div><b>Simple view</b><p class="muted">One step at a time</p></div><button class="switch" role="switch" aria-checked="'+(S.prefSimple?'true':'false')+'" aria-label="Simple view" data-act="pref"></button></div></div>'+
+  '<label class="chk"><input type="checkbox" id="ack"'+(S.consent?' checked':'')+'><span>I understand</span></label>'+
+  '<p class="err" id="ackerr" role="alert" hidden>Tick the box to continue.</p>'+
+  cta('<button class="btn primary block" data-act="consentgo">Continue</button>')+'</div>';
+}
+function vOverview(){
+  var T=[["Transition preparation","Completed","You’ve connected your account and seen what LTD involves.","done"],["Requirements gathering","Current · needs attention","Items to gather: "+leftCount()+". Member statement target Nov 16.","now"],["Sun Life review","Upcoming","Starts after Sun Life has what it needs. Timing not determined.",""],["Decision and next steps","Upcoming","Sun Life makes the decision. Bridge can’t predict it.",""]];
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">Your journey</h1><p class="lead">STD to LTD, in four stages.</p></div>'+
+  '<ol class="tl" aria-label="Stages">'+T.map(function(s,i){return '<li><span class="dot '+s[3]+'">'+(s[3]==="done"?I("check"):(i+1))+'</span><div><b>'+esc(s[0])+'</b><span class="st">'+esc(s[1])+'</span><span class="muted" style="display:block;margin-top:2px">'+esc(s[2])+'</span></div></li>'}).join("")+'</ol>'+
+  '<div class="note">'+I("info")+'<span>Moving forward doesn’t mean approval. Sun Life makes every claim decision.</span></div>'+
+  cta('<button class="btn primary block" data-go="map">See what’s needed</button><button class="linkbtn" style="align-self:center" data-go="dates">Important dates &amp; income questions</button>')+'</div>';
+}
+function itemRow(id){
+  var it=ITEMS[id];
+  return '<button class="item" data-go="detail" data-id="'+id+'"><span class="body"><b>'+esc(it.name)+'</b><span class="sub">'+badge(it.status)+(it.date?'<span class="due">Due Nov 16</span>':'')+'</span><span class="who">Provided by <b>'+esc(PROV[it.owner])+'</b></span>'+(S.done[id]?'<em>✓ Marked done by you</em>':'')+'</span>'+I("right")+'</button>';
+}
+var GK={"new":["NEW","New for LTD","Applies to the LTD assessment","g-new"],confirm:["UPDATE","Needs updating","May have changed since STD","g-confirm"],file:["ON FILE","Already on file","Received. Not the same as accepted for LTD","g-file"]};
+function vMap(){
+  var g=["new","confirm","file"].map(function(k){
+    var ids=Object.keys(ITEMS).filter(function(x){return ITEMS[x].group===k}),open=!!S.open[k],m=GK[k];
+    return '<section class="gcard '+m[3]+'"><button class="ghead" aria-expanded="'+open+'" aria-controls="g-'+k+'" data-act="toggle" data-id="'+k+'"><span class="gtag">'+m[0]+'</span><span class="t"><b>'+esc(m[1])+' · '+ids.length+'</b><small>'+esc(m[2])+'</small></span>'+I("down").replace('class="i"','class="i chev"')+'</button><div class="acc'+(open?' open':'')+'" id="g-'+k+'"><div'+(open?'':' inert')+'><div class="gitems">'+ids.map(itemRow).join("")+'</div></div></div></section>';
+  }).join("");
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">Your plan</h1></div>'+
+  '<div class="stage" style="padding:14px 16px;gap:12px">'+ms(1,true,true)+'<div class="mslegend"><i></i>Requirements gathering needs attention</div></div>'+g+'</div>';
+}
+function vDetail(id){
+  var it=ITEMS[id];if(!it)return vMap();
+  var d=DET[id],out=it.status!=="received",s=STATUS[it.status];
+  var rows='<div class="kvl"><span>What it is</span><span>'+esc(d.what)+'</span></div><div class="kvl"><span>Why it’s needed</span><span>'+esc(d.why)+'</span></div><div class="kvl"><span>Sun Life can confirm</span><span>'+esc(d.can)+'</span></div><div class="kvl"><span>Sun Life can’t confirm</span><span>'+esc(d.cannot)+'</span></div><div class="kvl"><span>After it’s received</span><span>'+esc(d.after)+'</span></div>';
+  var primary=FORMS[id]?'<button class="btn primary block" data-go="form" data-id="'+id+'">'+(fprogress(id)?'Continue where you left off':FORMS[id].start)+'</button>':it.follow?'<button class="btn primary block" data-go="follow" data-id="'+id+'">Help me follow up</button>':'<button class="btn primary block" data-go="support">Get help with this</button>';
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">'+esc(it.name)+'</h1></div>'+
+  '<div class="status"><span class="si ico '+s[0]+'">'+CI[s[0]]+'</span><div><b>'+esc(s[1])+'</b><small>From Sun Life records · Oct 24, 2026</small></div></div>'+
+  '<section class="card" style="gap:0"><span class="label" style="padding-bottom:4px">Who does what</span><div class="kvrow"><span>Provided by</span><span>'+esc(PROV[it.owner])+'</span></div><div class="kvrow"><span>Your part</span><span>'+esc(d.yours)+'</span></div><div class="kvrow"><span>Sun Life</span><span>Records it when received</span></div>'+(it.date?'<div class="kvrow"><span>Target date</span><span>Nov 16, 2026</span></div>':'')+'</section>'+
+  '<section class="more"><button class="morebtn" aria-expanded="'+MORE+'" data-act="more">About this requirement'+I("down").replace('class="i"','class="i chev"')+'</button><div class="acc'+(MORE?' open':'')+'" id="moreacc"><div'+(MORE?'':' inert')+'><div class="morebody" style="display:block;padding-bottom:6px">'+rows+'</div></div></div></section>'+
+  (out?'<label class="chk"><input type="checkbox" data-act="done" data-id="'+id+'"'+(S.done[id]?' checked':'')+'><span><b>I’ve done my part</b><br><span class="muted">Only you see this. It doesn’t change Sun Life’s status.</span></span></label>':'')+
+  cta(primary+'<div class="row" style="gap:0">'+(it.follow?'<button class="btn plain" data-go="support">Get help with this</button>':'')+'<button class="btn plain" data-act="save" data-id="'+id+'">Save for later</button></div>')+'</div>';
+}
+function vFollow(id){
+  var it=ITEMS[id]||ITEMS.ltdmed,key=it.follow||"med",msg=S.msgs[id]!=null?S.msgs[id]:MSG[key],to=key==="emp"?"HR":"your clinic";
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">Follow up</h1><p class="lead">Edit if you like, then copy. You send it yourself.</p></div>'+
+  '<div class="stack" style="gap:8px"><label for="msg" class="label">Message to '+esc(to)+'</label><textarea id="msg" data-field="msg" data-id="'+id+'" rows="7" inputmode="none">'+esc(msg)+'</textarea>'+
+  '<button class="btn plain" style="align-self:flex-start" data-act="resetmsg" data-id="'+id+'">'+I("refresh")+'Reset to suggested</button></div>'+
+  cta('<button class="btn primary block" data-act="copymsg">Copy message</button><div class="row" style="gap:0"><button class="btn plain" data-act="save" data-id="'+id+'">Save for later</button><button class="btn plain" data-go="support">Case-manager questions</button></div>')+'</div>';
+}
+var TOP={
+ doc:{t:"This requirement",icon:"doc",lab:"A document or requirement",sub:"Ask about one item in your plan",sugg:["Has Sun Life received it?","Can what’s already on file be reused for LTD?","What happens after it’s received?"]},
+ ben:{t:"Benefits and transition",icon:"map",lab:"My benefits and transition",sub:"How STD, LTD and your plan fit together",expl:"LTD is assessed separately from STD. Your case manager can explain how your plan works. Bridge can’t confirm amounts or timing.",sugg:["How does my plan handle the move from STD to LTD?","Will my STD payments continue while Sun Life reviews?","What income should I plan around if a decision takes longer?"]},
+ dates:{t:"Deadlines and claim status",icon:"cal",lab:"Deadlines or claim status",sub:"Dates and what Sun Life has on record",expl:"Known dates are on your Dates page. Claim status comes from Sun Life records.",sugg:["Can you confirm my current claim status?","Is the Nov 16 member statement target firm?","What if something arrives after a target date?"]},
+ other:{t:"Something else",icon:"help",lab:"Something else",sub:"Organise what you want to say",expl:"Write down what’s on your mind. Bridge helps you organise it before you speak with someone.",sugg:["Who is my case manager and how do I reach them?","Can a family member speak with Sun Life for me?"]}
+};
+var SUGGDOC={ltdmed:["Has Sun Life received my provider’s updated medical statement?","Can my STD medical statement be reused for LTD?","What happens once it’s received?"],ltdemp:["Has Sun Life received the LTD employer statement from HR?","What does HR need to complete it?"],ltdmember:["What should I include in my member statement?","Can I finish it in more than one sitting?"],limits:["What counts as a change in my limitations?","Who sees what I write here?"],stdmed:["Can this be reused for LTD?"],claim:["Is my claim information still correct?"]};
+function suggList(){var t=HS.topic,base=t==="doc"?(S.ctx&&SUGGDOC[S.ctx]||TOP.doc.sugg):(TOP[t]?TOP[t].sugg:[]);return base.filter(function(q){return S.qs.indexOf(q)<0})}
+function ctxCard(){var c=S.ctx&&ITEMS[S.ctx]?ITEMS[S.ctx]:null;if(!c)return "";
+  return '<section class="ctxb"><span class="label">You’re asking about</span><b>'+esc(c.name)+'</b><div class="metaline">'+badge(c.status)+'<span class="who">Provided by <b>'+esc(PROV[c.owner])+'</b></span></div></section>'}
+function helpBody(){
+  if(HS.step===0){
+    var c=S.ctx&&ITEMS[S.ctx]?ITEMS[S.ctx]:null;
+    var opts=["doc","ben","dates","other"].map(function(k){var o=TOP[k];return '<button class="opt" data-act="topic" data-id="'+k+'" aria-pressed="'+(HS.topic===k||(k==="doc"&&c&&!HS.topic))+'"><span class="oic">'+I(o.icon)+'</span><span>'+esc(o.lab)+'<small>'+esc(k==="doc"&&c?c.name:o.sub)+'</small></span>'+I("check").replace('class="i"','class="i tick"')+'</button>'}).join("");
+    return '<div class="head"><h1 tabindex="-1">What do you need help with?</h1></div>'+ctxCard()+(c?'<button class="linkbtn sm" style="align-self:flex-start" data-act="clearctx">Not this one</button>':'')+'<div class="slist"><button class="srow" data-go="history"><span class="ic">'+I("doc")+'</span><span class="t">History<small>'+(S.hist.length?S.hist.length+' saved question'+(S.hist.length>1?'s':'')+' and answers':'Your saved questions and answers')+'</small></span>'+I("right")+'</button><button class="srow" data-go="inbox"><span class="ic">'+I("mail")+'</span><span class="t">Inbox<small>Messages from your case manager</small></span>'+(unreadN()?'<span class="newpill">'+unreadN()+' new</span>':'')+I("right")+'</button></div><div class="stack" style="gap:10px" role="group" aria-label="Help topics">'+opts+'</div><p class="muted">Bridge helps you prepare. It doesn’t send messages or answer for Sun Life.</p>';
+  }
+  var t=TOP[HS.topic]||TOP.other,c2=S.ctx&&ITEMS[S.ctx]?ITEMS[S.ctx]:null,sug=suggList();
+  var expl=HS.topic==="doc"&&c2?DET[S.ctx].help:(t.expl||"Pick a requirement in your plan to get tailored suggestions.");
+  var chips=sug.length?'<div class="stack" style="gap:8px"><span class="label">Suggested questions</span>'+sug.map(function(q,i){return '<button class="sugg" data-act="addsugg" data-q="'+i+'">'+I("plus")+'<span>'+esc(q)+'</span></button>'}).join("")+'</div>':'';
+  var qs=S.qs.map(function(q,i){return '<div class="q"><textarea aria-label="Question '+(i+1)+'" data-field="q" data-i="'+i+'" rows="1" inputmode="none">'+esc(q)+'</textarea><button class="iconbtn" data-act="delq" data-i="'+i+'" aria-label="Remove question '+(i+1)+'">'+I("x")+'</button></div>'}).join("");
+  var draft=HS.topic==="doc"&&c2&&c2.follow?'<button class="btn secondary block" data-go="follow" data-id="'+S.ctx+'">'+I("mail")+'Draft a message to '+(c2.follow==="emp"?'HR':'your clinic')+'</button>':'';
+  return '<button class="linkbtn sm" style="align-self:flex-start;margin:-6px 0" data-act="helpback">'+I("left").replace('class="i"','class="i" style="width:16px;height:16px"')+'Change topic</button>'+
+  '<div class="head"><h1 tabindex="-1">'+esc(t.t==="This requirement"&&c2?c2.name:t.t)+'</h1><p class="lead">'+esc(expl)+'</p></div>'+(HS.topic==="doc"?ctxCard():'')+draft+chips+
+  '<div class="stack" style="gap:8px"><div class="row" style="justify-content:space-between;align-items:center"><span class="label">Your questions</span><button class="linkbtn sm" data-go="history">History</button></div>'+(S.qs.length?'<div class="stack" style="gap:8px" id="qlist">'+qs+'</div>':'<p class="muted" id="qlist">No questions yet. Tap a suggestion or add your own.</p>')+'<div class="row"><button class="btn secondary" data-act="addq">'+I("plus")+'Add</button><button class="btn secondary" data-act="copyqs"'+(S.qs.length?'':' disabled')+'>Copy all</button></div></div>'+
+  '<div class="stack" style="gap:8px"><span class="label">Who can help</span><div class="slist"><div class="srow static"><span class="ic">'+I("phone")+'</span><span class="t">Your Sun Life case manager<small>By phone, using the number in your claim letter</small></span></div><button class="srow" data-go="inbox"><span class="ic">'+I("mail")+'</span><span class="t">Inbox<small>Read and reply to your case manager</small></span>'+I("right")+'</button></div></div>'+
+  '<div class="stack" style="gap:6px"><label for="notes" class="label">Your notes</label><textarea id="notes" data-field="notes" rows="3" inputmode="none" placeholder="What you were told, and when…">'+esc(S.notes)+'</textarea><p class="muted" id="qstat" role="status">'+''+'</p></div>'+
+  cta('<button class="btn primary block" data-act="saveret">Save</button>'+(c2?'<button class="btn plain" data-act="returnreq">Return to requirement</button>':''));
+}
+function vSupport(){
+  if(!HS.topic&&S.ctx&&ITEMS[S.ctx]&&HS.step===0){/* context preselects the requirement option */}
+  return '<div class="pg" style="gap:16px"><div class="helpc" id="helpc">'+helpBody()+'</div></div>';
+}
+function taskCard(id){
+  var it=ITEMS[id],total=ORDER.length,n=ORDER.filter(function(x){return S.done[x]}).length+1;
+  return '<section class="focus"><div class="band"><span>Today’s step</span><span>'+n+' of '+total+'</span></div><div class="in2"><h2>'+esc(FOCUS[id])+'</h2><div class="metaline">'+badge(it.status)+ownerTag(it)+(it.date?'<span class="due">Due Nov 16</span>':'')+'</div>'+
+  (FORMS[id]?'<button class="btn primary block" data-go="form" data-id="'+id+'">'+(fprogress(id)?'Continue where you left off':FORMS[id].start)+'</button>':it.follow?'<button class="btn primary block" data-go="follow" data-id="'+id+'">Help me follow up</button>':'<button class="btn primary block" data-go="detail" data-id="'+id+'">Open</button>')+
+  '<div class="row"><button class="btn secondary" data-act="done" data-id="'+id+'" data-btn="1">Done</button><button class="btn secondary" data-act="save" data-id="'+id+'">Later</button></div></div></section>';
+}
+function todayBody(){
+  if(S.mode==="simple"){var id=nextTask();
+    var coming='<section class="card" style="gap:0"><span class="label" style="padding-bottom:4px">Coming up</span><div class="kvrow"><span>Nov 16</span><span>Member statement due</span></div><div class="kvrow"><span>Nov 30</span><span>STD ends</span></div></section>';
+    return (id?taskCard(id):'<section class="panel"><h2>You’ve done your part for now.</h2><button class="btn primary" data-go="summary">See summary</button></section>')+coming}
+  var ids=outstanding().slice().sort(function(a,b){return (ITEMS[b].date?1:0)-(ITEMS[a].date?1:0)});
+  return '<section class="gcard"><div class="gitems">'+ids.map(itemRow).join("")+'</div></section><button class="btn quiet" data-go="support">Prepare questions</button>';
+}
+function vToday(){
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">Your next step</h1></div>'+segHtml("mode",[["simple","Simple view"],["all","All tasks"]],S.mode,"View")+resumeCard()+'<div class="tb" id="todayBody">'+todayBody()+'</div></div>';
+}
+function vSummary(){
+  var nx=nextTask();
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">You’re set</h1></div>'+
+  '<div class="todo"><span class="label">Next</span><b>'+(nx?esc(FOCUS[nx]):'Nothing from you right now.')+'</b></div>'+
+  '<div class="stats"><div class="stat"><b>'+outstanding().length+'</b><span>to do</span></div><div class="stat"><b>'+onFile().length+'</b><span>on file</span></div></div>'+
+  '<div class="irow"><span class="ic">'+I(S.qSaved?"check":"help")+'</span><b>'+(S.qSaved?'Questions saved':'No questions saved yet')+'</b></div>'+
+  '<p class="foot">Sun Life decides your claim. Bridge can’t predict the outcome.</p>'+
+  cta('<button class="btn primary block" data-go="map">View my plan</button>')+'</div>';
+}
+function vSaved(){
+  return '<div class="pg" style="padding-top:70px"><div class="sent"><div class="ic">'+I("check")+'</div><h1 tabindex="-1">Saved</h1><p class="lead">We kept your place.</p></div>'+
+  cta('<button class="btn primary block" data-act="later">Close for now</button>')+'</div>';
+}
+function srow(icon,title,attrs){return '<button class="srow" '+(attrs||'')+'><span class="ic">'+I(icon)+'</span><span class="t">'+title+'</span>'+I("right")+'</button>'}
+function sw(key,label){return '<button class="switch" role="switch" aria-checked="'+(S[key]?'true':'false')+'" aria-label="'+label+'" data-act="sw" data-id="'+key+'"></button>'}
+function vSettings(){
+  var idx=Math.max(0,TS.indexOf(S.text)),on=S.conn==="on";
+  return '<div class="pg" style="gap:22px"><div class="profile"><span class="iconbtn avatar" style="pointer-events:none">A</span><div><b>Amira</b><span class="muted">amira@example.com</span></div></div>'+
+  grp("Account & connection",'<div class="slist"><button class="srow" data-go="conn"><span class="ic">'+I("link")+'</span><span class="t">Sun Life connection<small>'+(on?"Connected":"Not connected")+'</small></span>'+I("right")+'</button>'+srow("key","Change password",'data-go="password"')+'</div>')+
+  grp("Appearance",'<div class="panel">'+segHtml("theme",[["light",I("sun")+"Light"],["dark",I("moon")+"Dark"],["system",I("device")+"System"]],S.theme,"Theme")+'</div>')+
+  grp("Accessibility",'<div class="panel" style="gap:16px"><div class="stack" style="gap:4px"><b>Text size</b><div class="tszrow"><span class="aS" aria-hidden="true">A</span><input id="tsz" type="range" min="0" max="3" step="1" value="'+idx+'" aria-label="Text size" aria-valuetext="'+TSL[idx]+'"><span class="aL" aria-hidden="true">A</span></div><div class="tszlab" aria-hidden="true"><span>Small</span><span>Default</span><span>Large</span><span>Extra Large</span></div></div><div class="switchrow"><div><b>Reduce motion</b><p class="muted">Fewer animations</p></div>'+sw("calm","Reduce motion")+'</div></div>')+
+  grp("Privacy & sharing",'<div class="slist">'+srow("shield","Privacy & Sharing",'data-go="privacy"')+'</div>')+
+  grp("Support & about",'<div class="slist">'+srow("help","Get help",'data-tab="support"')+srow("info","About Bridge",'data-act="sheet" data-id="about"')+srow("info","Reset sample data",'data-act="resetdata"')+'</div>')+
+  '<button class="btn secondary block" data-act="signout">'+I("out")+'Sign out</button></div>';
+}
+function vConn(){
+  var st=CS,on=st==="on";
+  var B={off:["unk","Not connected"],connecting:["wait","Connecting…"],on:["ok","Connected"],error:["ask","Connection error"]}[st];
+  var desc={off:"Connect so Bridge can show your claim, requirements and dates. Bridge can read your information. It can’t change your claim.",connecting:"Connecting to your Sun Life account…",error:"We couldn’t connect. Nothing was changed. Try again.",on:"Bridge can show your claim status, requirements and dates."}[st];
+  var body='<div class="head"><h1 tabindex="-1">Sun Life connection</h1></div><section class="card"><span class="badge2 '+(st==="error"?"err":B[0])+'" style="align-self:flex-start">'+CI[B[0]]+B[1]+'</span><p style="margin:0">'+desc+'</p>'+(on?'<div style="margin-top:2px"><div class="kvrow"><span>Account</span><span>Amira R. · Sun Life member</span></div><div class="kvrow"><span>Claim</span><span>SL-482911</span></div></div><button class="btn secondary block" data-act="sheet" data-id="conn">View connection details</button>':'')+'</section>';
+  var sim=on?'':'<div class="note">'+I("info")+'<span>Simulation. Bridge doesn’t connect to Sun Life, and no credentials are requested.</span></div><div class="switchrow"><div><b>Simulate a connection error</b></div>'+sw("demoErr","Simulate a connection error")+'</div>';
+  var c=on?'<button class="btn danger block" data-act="sheet" data-id="disc">Disconnect</button>':'<button class="btn primary block" id="connbtn" data-act="connect"'+(st==="connecting"?' disabled class="btn primary block loading"':'')+'>'+(st==="connecting"?'<span class="spin" aria-hidden="true"></span>Connecting…':st==="error"?'Try again':'Connect to Sun Life')+'</button>';
+  return '<div class="pg" style="gap:16px">'+body+sim+cta(c)+'</div>';
+}
+var RL=[["Amira","Her own authorized claim information."],["Sun Life disability team","What it needs for its responsibilities on your claim."],["Your healthcare provider","Requests for medical information. Not your claim file."],["Employer / HR","Work-related information, subject to your plan, authorization and law. Typically not diagnosis."],["A trusted person","Only what you authorize them to see."]];
+function vPrivacy(){
+  var T=S.trusted,roles=RL.map(function(r){return '<div class="role"><b>'+esc(r[0])+'</b><span>'+esc(r[1])+'</span></div>'}).join("");
+  var tp=T?'<section class="card"><span class="badge2 ok" style="align-self:flex-start">'+CI.ok+'Active</span><div class="kvl"><span>Trusted person</span><span>'+esc(T.who)+'</span></div><div class="kvl"><span>Can see</span><span>'+esc(T.what)+'</span></div><div class="kvl"><span>Cannot see</span><span>Medical information, or anything beyond the above</span></div><button class="btn secondary block" data-act="shareask">Ask about changing this</button><button class="btn danger block" data-act="shareremove">Remove</button></section>':'<section class="card"><p style="margin:0">You can choose to let one trusted person see limited information. It’s optional.</p><button class="btn secondary block" data-go="share">Set up a trusted person</button></section>';
+  return '<div class="pg" style="gap:20px"><div class="head"><h1 tabindex="-1">Privacy &amp; Sharing</h1></div>'+grp("Who can see what",'<div class="card" style="gap:0;padding:6px 16px">'+roles+'</div><p class="muted" style="margin:0">A simplified explanation. Your plan and privacy law decide what is shared.</p>')+grp("Optional sharing",tp)+'</div>';
+}
+var WHO=[["Daniel Rahman","Spouse"],["Priya Nair","Sister"]],WHAT=[["status","Claim status and key dates","Dates and whether items are received or outstanding"],["req","Requirement status only","Which items are received or outstanding"]];
+function shareBody(){
+  var st=SH.step;
+  if(SH.done)return '<div class="sent"><div class="ic">'+I("check")+'</div><h1 tabindex="-1">Saved</h1><p class="lead">'+esc(SH.who)+' now has limited access. In the real service, Sun Life would confirm this with you first.</p></div><div class="note">'+I("info")+'<span>Review or change this in Privacy &amp; Sharing, or ask your case manager.</span></div>'+cta('<button class="btn primary block" data-go="privacy" data-replace="1">Back to Privacy &amp; Sharing</button>');
+  var bar='<span class="label">Step '+(st+1)+' of 3</span>';
+  if(st===0)return bar+'<div class="head"><h1 tabindex="-1">Who do you want to include?</h1><p class="lead">Choose one trusted person.</p></div><div class="stack" style="gap:10px" role="group" aria-label="People">'+WHO.map(function(w){return '<button class="opt" data-act="shwho" data-id="'+esc(w[0])+'" aria-pressed="'+(SH.who===w[0])+'"><span class="oic">'+I("user")+'</span><span>'+esc(w[0])+'<small>'+esc(w[1])+'</small></span>'+I("check").replace('class="i"','class="i tick"')+'</button>'}).join("")+'</div>'+cta('<button class="btn primary block" data-act="shnext"'+(SH.who?'':' disabled')+'>Next</button>');
+  if(st===1)return bar+'<div class="head"><h1 tabindex="-1">What can they see?</h1><p class="lead">Share the least that helps.</p></div><div class="stack" style="gap:10px" role="group" aria-label="Information">'+WHAT.map(function(w){return '<button class="opt" data-act="shwhat" data-id="'+w[0]+'" aria-pressed="'+(SH.what===w[0])+'"><span class="oic">'+I("doc")+'</span><span>'+esc(w[1])+'<small>'+esc(w[2])+'</small></span>'+I("check").replace('class="i"','class="i tick"')+'</button>'}).join("")+'<button class="opt" disabled aria-disabled="true"><span class="oic">'+I("lockc")+'</span><span>Medical information<small>Not available here. It needs a separate Sun Life authorization.</small></span></button></div>'+cta('<button class="btn primary block" data-act="shnext">Next</button><button class="linkbtn" style="align-self:center" data-act="shback">Back</button>');
+  var w=WHAT.filter(function(x){return x[0]===SH.what})[0];
+  return bar+'<div class="head"><h1 tabindex="-1">Review and confirm</h1></div><section class="card" style="gap:0;padding:4px 16px"><div class="kvl"><span>Recipient</span><span>'+esc(SH.who)+'</span></div><div class="kvl"><span>Can see</span><span>'+esc(w[1])+'</span></div><div class="kvl"><span>Why</span><span>So they can help you keep track of dates and what’s outstanding.</span></div><div class="kvl"><span>Optional?</span><span>Yes. Other sharing required by your plan or law is separate.</span></div><div class="kvl"><span>How it’s confirmed</span><span>In the real service, through your Sun Life account. Here it’s simulated.</span></div><div class="kvl"><span>Review or change</span><span>Privacy &amp; Sharing, or ask your case manager.</span></div></section>'+cta('<button class="btn primary block" data-act="shconfirm">Confirm</button><button class="linkbtn" style="align-self:center" data-act="shback">Back</button>');
+}
+function vShare(){return '<div class="pg" style="gap:16px"><div class="cwrap" id="shc">'+shareBody()+'</div></div>'}
+var INCQ=["Will my STD payments continue until Sun Life decides on LTD?","Is there a waiting period under my plan?","How will I be told about the decision and next steps?"];
+function vDates(){
+  var rows=[["STD ends","Nov 30, 2026","ok","Confirmed"],["Member statement target","Nov 16, 2026","ok","Confirmed"],["Sun Life review starts","After required items are received","unk","Not determined"],["LTD decision","Made by Sun Life","unk","Not determined"],["First LTD payment","Depends on a decision and your plan","unk","Not determined"],["Benefit amount","Depends on your plan","unk","Not determined"]];
+  return '<div class="pg" style="gap:18px"><div class="head"><h1 tabindex="-1">Dates &amp; income</h1><p class="lead">What’s known, and what isn’t yet.</p></div><section class="card" style="gap:0;padding:4px 16px">'+rows.map(function(r){return '<div class="drow"><div><b>'+esc(r[0])+'</b><small>'+esc(r[1])+'</small></div><span class="tag3 '+r[2]+'">'+r[3]+'</span></div>'}).join("")+'</section>'+
+  '<div class="note">'+I("info")+'<span><b>Confirmed</b> comes from Sun Life records. <b>Not determined</b> depends on things not yet known. Bridge doesn’t estimate approval, timing or amounts.</span></div>'+
+  grp("Income questions to ask",INCQ.map(function(q,i){var has=S.qs.indexOf(q)>-1;return '<button class="sugg" data-act="incq" data-i="'+i+'"'+(has?' disabled':'')+'>'+I(has?"check":"plus")+'<span>'+esc(q)+'</span></button>'}).join(""))+
+  cta('<button class="btn primary block" data-act="openhelp">Open my questions</button>')+'</div>';
+}
+
+function vForm(id){
+  var F=FORMS[id];if(!F)return vMap();var f=fstate(id),n=F.steps.length,st=Math.min(f.step,n);
+  var prog='<div class="fprog" aria-hidden="true">'+Array.apply(null,Array(n+1)).map(function(_,i){return '<i class="'+(i<st?'on':i===st?'cur':'')+'"></i>'}).join("")+'</div>';
+  var head='<div class="stack" style="gap:8px"><span class="fstep">Step '+(st+1)+' of '+(n+1)+' · '+(st<n?esc(F.steps[st].h):'Review')+'</span>'+prog+'</div>';
+  var stat='<p class="fstat" id="fstat">'+I("check")+'<span>'+(f.savedAt?'Progress saved':'Your draft saves as you type')+'</span></p>';
+  var body;
+  if(st<n){body=F.steps[st].f.map(function(q){var k=q[0],val=f.v[k]||"",inner;
+    if(q[2]==="yn")inner='<div class="row" role="group" aria-label="'+esc(q[1])+'">'+["Yes","No"].map(function(o){return '<button class="btn secondary" style="flex:1'+(val===o?';border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)':'')+'" aria-pressed="'+(val===o)+'" data-act="formopt" data-id="'+id+'" data-k="'+k+'" data-v="'+o+'">'+o+'</button>'}).join("")+'</div>';
+    else if(q[2]==="chk"){var sel=val?val.split("|"):[];inner='<div class="stack" style="gap:8px" role="group">'+q[3].map(function(o){var on=sel.indexOf(o)>-1;return '<button class="opt" aria-pressed="'+on+'" data-act="formchk" data-id="'+id+'" data-k="'+k+'" data-v="'+esc(o)+'"><span>'+esc(o)+'</span>'+I("check").replace('class="i"','class="i tick"')+'</button>'}).join("")+'</div>'}
+    else inner='<input class="in" style="padding-left:14px" id="f_'+k+'" type="text" data-field="form" data-id="'+id+'" data-k="'+k+'" inputmode="none" autocomplete="off" placeholder="'+esc(q[3]||"")+'" value="'+esc(val)+'">';
+    return '<div class="fld"><label'+(q[2]==="yn"||q[2]==="chk"?'':' for="f_'+k+'"')+'>'+esc(q[1])+'</label>'+inner+'</div>'}).join("")}
+  else{body='<section class="card" style="gap:0;padding:4px 16px">'+F.steps.reduce(function(a,sp){return a.concat(sp.f)},[]).map(function(q){return '<div class="kvl"><span>'+esc(q[1])+'</span><span>'+(f.v[q[0]]?esc(String(f.v[q[0]]).split("|").join(", ")):'<span class="muted">Not filled in</span>')+'</span></div>'}).join("")+'</section><div class="note">'+I("info")+'<span>Check your answers. Mark your part done when you’ve finished, then submit the form in your Sun Life member account.</span></div>'}
+  var next=st<n?'<button class="btn primary block" data-act="formstep" data-id="'+id+'" data-d="1">Next</button>':'<button class="btn primary block" data-act="formdone" data-id="'+id+'">Mark my part done</button>';
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">'+esc(F.title)+'</h1></div>'+head+body+stat+
+  cta('<div class="stack" style="gap:14px;padding-top:2px">'+next+'<div class="row" style="gap:12px"><button class="btn secondary" style="flex:1" data-act="formstep" data-id="'+id+'" data-d="-1"'+(st===0?' disabled':'')+'>Back</button><button class="btn secondary" style="flex:1" data-act="formsave" data-id="'+id+'">Save progress</button></div></div>')+'</div>';
+}
+function vHistory(){
+  var rows=S.hist.length?S.hist.map(function(h,i){return '<section class="card" style="gap:10px"><div class="stack" style="gap:4px"><span class="fstep">'+esc(h.topic)+' · '+esc(h.date)+'</span><b style="font-size:16.5px;line-height:1.35">'+esc(h.q)+'</b></div><div class="fld"><label for="ha'+i+'">What you were told</label><textarea id="ha'+i+'" data-field="hist" data-i="'+i+'" rows="2" inputmode="none" placeholder="Add the answer you got, and when…">'+esc(h.a)+'</textarea></div><div class="row" style="justify-content:flex-end"><button class="iconbtn" style="color:var(--err)" data-act="histask" data-i="'+i+'" aria-label="Delete this question">'+I("trash")+'</button></div></section>'}).join(""):'<section class="card"><b>No saved questions yet</b><p class="muted" style="margin:0">Questions you save in Help appear here, so you can look back at what you asked and what you were told.</p></section>';
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">History</h1><p class="lead">Questions you’ve saved, and the answers you noted.</p></div>'+rows+'</div>';
+}
+function vInbox(){
+  var rows=MSGS.map(function(m){var un=!S.inbox.read[m.id],rc=(S.inbox.replies[m.id]||[]).length;return '<button class="mrow'+(un?' un':'')+'" data-act="msgopen" data-id="'+m.id+'"><span class="ud"'+(un?' role="img" aria-label="Unread"':' aria-hidden="true"')+'></span><span class="mt"><em>Your Sun Life case manager</em><b>'+esc(m.subj)+'</b><small>'+esc(m.body[1])+'</small>'+(rc?'<em>'+rc+' repl'+(rc>1?'ies':'y')+' from you</em>':'')+'</span><span class="dt">'+m.date+'</span></button>'}).join("");
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">Inbox</h1><p class="lead">Messages from your case manager. Your case manager may reach out to follow up.</p></div><div class="stack" style="gap:10px">'+rows+'</div><p class="muted">Sample messages for this concept.</p></div>';
+}
+function vThread(id){
+  var m=MSGS.filter(function(x){return x.id===id})[0];if(!m)return vInbox();
+  var reps=S.inbox.replies[id]||[],dr=S.inbox.draft[id]||"";
+  var thread='<div class="bubx in"><small>Your Sun Life case manager · '+m.date+'</small>'+m.body.map(function(p){return '<p>'+esc(p)+'</p>'}).join("")+'</div>'+reps.map(function(r){return '<div class="bubx out"><small>You · '+esc(r.t)+'</small><p>'+esc(r.x)+'</p></div>'}).join("");
+  var req=m.req&&ITEMS[m.req]?'<button class="btn secondary block" data-go="detail" data-id="'+m.req+'">View '+esc(ITEMS[m.req].name)+'</button>':'';
+  return '<div class="pg" style="gap:16px"><div class="head"><h1 tabindex="-1">'+esc(m.subj)+'</h1></div><div class="stack" style="gap:10px" id="thr">'+thread+'</div>'+req+
+  '<div class="fld"><label for="rep">Reply</label><textarea id="rep" data-field="reply" data-id="'+id+'" rows="3" inputmode="none" placeholder="Write your reply…">'+esc(dr)+'</textarea><p class="muted" id="rstat" role="status"></p></div>'+
+  cta('<button class="btn primary block" data-act="msgsend" data-id="'+id+'">Send reply</button>')+'</div>';
+}
+function vPassword(){
+  return '<div class="pg"><div class="head"><h1 tabindex="-1">Change password</h1></div><div class="stack" style="gap:14px">'+field("p0","Current password","lock","sunlife123","password")+field("p1","New password","lock","newpassword1","password")+field("p2","Confirm new password","lock","newpassword1","password")+'</div>'+
+  '<button class="btn plain" style="align-self:flex-start" data-go="forgot">Forgot current password?</button>'+cta('<button class="btn primary block" data-act="savepw">Update password</button>')+'</div>';
+}
+
+var CFG={splash:[vSplash,0,0,0,1],land:[vLand,0,0,0,1],auth:[vAuth,0,0,0,0],forgot:[vForgot,1,0,0,0],verify:[vVerify,1,0,0,0],home:[vHome,1,1,0,0],intro:[vIntro,1,0,0,0],consent:[vConsent,1,0,0,0],
+  overview:[vOverview,1,1,1,0],map:[vMap,1,1,1,0],detail:[vDetail,1,1,1,0],follow:[vFollow,1,1,1,0],support:[vSupport,1,1,1,0],today:[vToday,1,1,1,0],summary:[vSummary,1,1,1,0],
+  settings:[vSettings,1,0,0,0],password:[vPassword,1,0,0,0],saved:[vSaved,0,0,0,0],conn:[vConn,1,0,0,0],privacy:[vPrivacy,1,0,0,0],share:[vShare,1,0,0,0],dates:[vDates,1,1,0,0],history:[vHistory,1,1,0,0],form:[vForm,1,0,0,0],inbox:[vInbox,1,1,0,0],thread:[vThread,1,0,0,0]};
+var GATED={home:1,today:1,map:1,detail:1,follow:1,overview:1,dates:0,summary:1,inbox:1,thread:1};
+var TITLE={overview:"Your journey",map:"Your plan",detail:"Requirement",follow:"Follow-up",support:"Support",today:"Today",summary:"Summary",settings:"Settings",password:"Password",forgot:"Reset password",verify:"Verify",conn:"Connection",privacy:"Privacy & Sharing",share:"Trusted person",dates:"Dates & income",form:"Your statement",inbox:"Inbox",history:"History",thread:"Message"};
+var TABS=[["home","Home","home"],["today","Today","today"],["map","Plan","map"],["support","Help","help"]];
+var TABOF={home:"home",today:"today",map:"map",detail:"map",overview:"map",follow:"today",summary:"today",support:"support",dates:"home",overview:"home",form:"today",inbox:"support",history:"support",thread:"support"};
+
+function renderNow(moveFocus){
+  clearTimeout(timer);clearTimeout(timer2);hideKb(true);
+  var c=CFG[nav.screen];
+  $("#view").innerHTML=(GATED[nav.screen]&&S.conn!=="on")?vGate():c[0](nav.id);
+  clearInterval(vint);if(nav.screen==="verify"){refreshVerify();vint=setInterval(vtick,1000)}if(nav.screen==="conn")CS=CS==="connecting"?"connecting":(S.conn==="on"?"on":(CS==="error"?"error":"off"));
+  var hero=!!c[4];$("#statusbar").classList.toggle("light",hero);$("#homebar").classList.toggle("light",hero);$("#sbSpace").style.display=hero?"none":"";$("#homeSpace").style.display=hero?"none":"";
+  $("#appbar").hidden=!c[1];
+  var br=$("#brand");
+  if(["home","intro","consent"].indexOf(nav.screen)>-1)br.innerHTML='<span class="sun" aria-hidden="true"></span><span>Sun Life Bridge</span>';
+  else br.innerHTML=TITLE[nav.screen]?esc(TITLE[nav.screen]):"";
+  $("#acctBtn").hidden=nav.screen!=="home";
+  $("#privBtn").hidden=!(c[3]||nav.screen==="intro"||nav.screen==="consent");
+  $("#backBtn").hidden=!c[1]||(stack.length===0&&!ALWAYSBACK[nav.screen]);
+  $("#datesWrap").innerHTML=c[3]?datesStrip():"";
+  var tabs=$("#tabs");tabs.hidden=!c[2];
+  if(c[2]){var left=leftCount();tabs.innerHTML=TABS.map(function(t){return '<button class="tab" data-tab="'+t[0]+'"'+(TABOF[nav.screen]===t[0]?' aria-current="page"':'')+'><span class="tabi">'+I(t[2])+(t[0]==="today"&&left?'<span class="badge">'+left+'</span>':'')+(t[0]==="support"&&unreadN()?'<span class="badge">'+unreadN()+'</span>':'')+'</span><span>'+t[1]+'</span></button>'}).join("")}
+  $("#scroll").scrollTop=0;
+  if(moveFocus!==false){var h=$("#view h1");if(h)h.focus({preventScroll:true})}
+  if(nav.screen==="splash")timer=setTimeout(function(){if(nav.screen==="splash"){nav={screen:"land",id:0,via:"fade"};render(false,"fade")}},1700);
+  if(nav.screen==="verify")timer2=setTimeout(function(){if(nav.screen==="verify")showKb("num")},480);
+}
+/* transitions: push/pop = shared axis, fade = fade-through (tabs), up/down = modal slide */
+function render(moveFocus,kind){
+  var sc=$("#scroll"),vp=$("#viewport");
+  if(!kind||isReduced()||!$("#view").innerHTML){renderNow(moveFocus);return}
+  var ghost=document.createElement("div");ghost.className="ghost";
+  var cl=$("#view").cloneNode(true);cl.removeAttribute("id");cl.removeAttribute("tabindex");cl.style.transform="translateY("+(-sc.scrollTop)+"px)";ghost.appendChild(cl);
+  vp.appendChild(ghost);
+  renderNow(moveFocus);
+  var E="cubic-bezier(.22,.8,.24,1)",dur=({fade:300,push:340,pop:340,up:420,down:360})[kind]||320;
+  sc.style.position="relative";
+  var done=function(){ghost.remove();sc.style.zIndex="";sc.style.boxShadow=""};
+  if(kind==="push"){sc.style.zIndex=2;ghost.style.zIndex=1;
+    sc.animate([{transform:"translateX(56px)",opacity:0},{transform:"none",opacity:1}],{duration:dur,easing:E});
+    ghost.animate([{transform:"none",opacity:1},{transform:"translateX(-40px)",opacity:0}],{duration:dur*.7,easing:"ease-in",fill:"forwards"})}
+  else if(kind==="pop"){sc.style.zIndex=2;ghost.style.zIndex=1;
+    sc.animate([{transform:"translateX(-40px)",opacity:0},{transform:"none",opacity:1}],{duration:dur,easing:E});
+    ghost.animate([{transform:"none",opacity:1},{transform:"translateX(56px)",opacity:0}],{duration:dur*.7,easing:"ease-in",fill:"forwards"})}
+  else if(kind==="up"){sc.style.zIndex=2;ghost.style.zIndex=1;sc.style.boxShadow="0 -12px 30px rgba(5,25,32,.25)";
+    sc.animate([{transform:"translateY(100%)"},{transform:"none"}],{duration:dur,easing:E});
+    ghost.animate([{transform:"none",filter:"brightness(1)"},{transform:"scale(.94)",filter:"brightness(.7)"}],{duration:dur,easing:E,fill:"forwards"})}
+  else if(kind==="down"){sc.style.zIndex=1;ghost.style.zIndex=2;ghost.style.boxShadow="0 -12px 30px rgba(5,25,32,.25)";
+    sc.animate([{transform:"scale(.94)",filter:"brightness(.7)"},{transform:"none",filter:"brightness(1)"}],{duration:dur,easing:E});
+    ghost.animate([{transform:"none"},{transform:"translateY(100%)"}],{duration:dur,easing:E,fill:"forwards"})}
+  else{sc.style.zIndex=2;ghost.style.zIndex=1;
+    sc.animate([{opacity:0,transform:"scale(.97)"},{opacity:0,transform:"scale(.97)",offset:.3},{opacity:1,transform:"none"}],{duration:dur,easing:E});
+    ghost.animate([{opacity:1},{opacity:0}],{duration:dur*.35,easing:"ease-in",fill:"forwards"})}
+  setTimeout(done,dur+40);
+}
+function go(screen,id,replace,kind){
+  kind=kind||"push";
+  if((screen==="detail"||screen==="follow")&&id){S.ctx=id;persist()}
+  if(screen==="support"&&nav.screen!=="support"&&!(HS.step===1&&HS.topic)){HS={topic:null,step:0}}
+  if(replace)stack=[];else stack.push({screen:nav.screen,id:nav.id,via:nav.via});
+  nav={screen:screen,id:id||null,via:kind};render(true,kind);
+}
+var ALWAYSBACK={settings:1,privacy:1,share:1,conn:1,password:1,dates:1,form:1,inbox:1,thread:1,history:1,detail:1,follow:1,summary:1,overview:1};
+function back(){var leaving=nav.via,p=stack.pop();if(!p&&ALWAYSBACK[nav.screen]){var rt=({inbox:"support",history:"support",thread:"support",form:"home",detail:"map",follow:"today"})[nav.screen]||"home";nav={screen:rt,id:null,via:"pop"};render(true,"pop");return}if(p){nav=p;render(true,leaving==="up"?"down":"pop")}}
+function reset2(screen,kind){stack=[];nav={screen:screen,id:null,via:kind||"fade"};render(true,kind||"fade")}
+
+/* ---------- sheets ---------- */
+function roles(){
+  var R=RL;
+  return R.map(function(r){return '<div class="role"><b>'+esc(r[0])+'</b><span>'+esc(r[1])+'</span></div>'}).join("");
+}
+var DELI=-1;
+var SHEETS={
+ delq:function(){var h=S.hist[DELI];return ["Delete this question?",'<div class="stack"><p class="muted">'+(h?'“'+esc(h.q)+'” and the answer you noted will be deleted permanently. This can’t be undone.':'This will be deleted permanently. This can’t be undone.')+'</p><button class="btn danger solid block" data-act="histdel">Delete permanently</button><button class="btn secondary block" data-act="closesheet">Cancel</button></div>'];},
+ privacy:function(){return ["Who sees what",roles()+'<button class="btn secondary block" style="margin-top:12px" data-go="privacy">Privacy &amp; Sharing</button>'];},
+ conn:function(){return ["Connection details",'<div class="stack" style="gap:10px"><div class="kvl"><span>Status</span><span>Connected (simulated)</span></div><div class="kvl"><span>Bridge can read</span><span>Claim status, requirement status, key dates</span></div><div class="kvl"><span>Bridge can’t do</span><span>Change your claim, send messages or make decisions</span></div><div class="kvl"><span>Credentials</span><span>None are stored or requested</span></div></div>'];},
+ disc:function(){return ["Disconnect?",'<div class="stack"><p class="muted">Bridge will stop showing your claim. Your Sun Life claim isn’t affected. You can reconnect any time.</p><button class="btn danger block" data-act="disconnect">Disconnect</button><button class="btn secondary block" data-act="closesheet">Cancel</button></div>'];},
+ ltd:function(){return ["How LTD works",'<div class="stack" style="gap:6px"><div class="irow"><span class="ic">'+I("doc")+'</span><b>A separate assessment from STD</b></div><div class="irow"><span class="ic">'+I("people")+'</span><b>Asks for a broader picture: medical, work, income</b></div><div class="irow"><span class="ic">'+I("shield")+'</span><b>Sun Life decides. Bridge can’t predict the outcome</b></div></div>'];},
+ about:function(){return ["About Bridge",'<div class="stack"><p class="muted">Bridge is a concept from the University of Waterloo × Sun Life uXperience Design Jam. People, dates and statuses are sample data.</p><button class="btn secondary block" data-act="reset">Start over</button></div>'];}
+};
+function openSheet(name){
+  lastFocus=document.activeElement;var s=SHEETS[name]();
+  $("#sheetRoot").innerHTML='<div class="scrim" data-act="closesheet"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><header><h2 id="sh-t">'+esc(s[0])+'</h2><button class="iconbtn" data-act="closesheet" aria-label="Close">'+I("x")+'</button></header>'+s[1]+'</div></div>';
+  var b=$("#sheetRoot .iconbtn");if(b)b.focus();
+}
+function closeSheet(){var sr=$("#sheetRoot"),sc=sr.querySelector(".scrim");if(!sc)return;if(isReduced()){sr.innerHTML="";return}sc.classList.add("closing");setTimeout(function(){sr.innerHTML="";if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))lastFocus.focus()},240)}
+
+
+function extra(a,t,id){
+  switch(a){
+  case "histadd":{var h0=S.hist[+t.dataset.i];if(h0&&S.qs.indexOf(h0.q)<0){S.qs.push(h0.q);S.qSaved=false;persist();toast("Added to your questions")}else toast("Already in your questions");return true}
+  case "histask":{DELI=+t.dataset.i;openSheet("delq");return true}
+  case "histdel":{S.hist.splice(DELI,1);DELI=-1;persist();closeSheet();render(false);toast("Question deleted");return true}
+  case "formopt":{var fo=fstate(id);fo.v[t.dataset.k]=t.dataset.v;fo.savedAt=0;persist();render(false);return true}
+  case "formchk":{var fc=fstate(id),cur=fc.v[t.dataset.k]?fc.v[t.dataset.k].split("|"):[],ix=cur.indexOf(t.dataset.v);if(ix>-1)cur.splice(ix,1);else cur.push(t.dataset.v);fc.v[t.dataset.k]=cur.join("|");fc.savedAt=0;persist();render(false);return true}
+  case "formstep":{if(t.disabled)return true;var F2=FORMS[id],f2=fstate(id);f2.step=Math.max(0,Math.min(F2.steps.length,f2.step+(+t.dataset.d)));persist();render(false);return true}
+  case "formsave":{var f3=fstate(id);f3.savedAt=Date.now();persist();toast("Progress saved");reset2("home","fade");return true}
+  case "formdone":{S.done[id]=true;persist();toast("Marked done. Sun Life’s status is unchanged.");reset2("today","fade");return true}
+  case "msgopen":{S.inbox.read[id]=true;persist();go("thread",id);return true}
+  case "msgsend":{var d0=(S.inbox.draft[id]||"").trim();if(!d0){toast("Write a reply first");return true}(S.inbox.replies[id]=S.inbox.replies[id]||[]).push({t:"Just now",x:d0});S.inbox.draft[id]="";persist();render(false);var rs=$("#rstat");if(rs)rs.textContent="Reply added to this conversation.";return true}
+  case "obnext":{var i=+nav.id||0;if(i>=SLIDES.length-1){go("auth",null,true,"fade")}else setOb(i+1,1);return true}
+  case "obback":{var j=+nav.id||0;if(j>0)setOb(j-1,-1);return true}
+  case "signin":{
+    if(t.disabled)return true;var em=$("#em"),pw=$("#pw"),nm=$("#nm"),ok=true;
+    [nm,em,pw].forEach(function(x){if(x)clearerr(x)});
+    if(nm&&!nm.value.trim()){fielderr(nm,"Enter your name");ok=false}
+    if(!/^\S+@\S+\.\S+$/.test(em.value.trim())){fielderr(em,"Enter a valid email, like name@example.com");ok=false}
+    if(pw.value.length<8){fielderr(pw,"Password must be at least 8 characters");ok=false}
+    if(!ok){var fe=document.querySelector("#authForm .field.bad input");if(fe)fe.focus();return true}
+    var lab=AUTH==="in"?"Sign in":"Create account";t.disabled=true;t.classList.add("loading");t.innerHTML='<span class="spin" aria-hidden="true"></span>'+(AUTH==="in"?"Signing in…":"Creating account…");
+    setTimeout(function(){if(nav.screen==="auth"){startVerify();go("verify",null)}},900);return true}
+  case "sso":{
+    if(t.disabled)return true;
+    if(S.conn==="on"){var n=$("#authNote");n.hidden=false;setTimeout(function(){if(nav.screen==="auth"){startVerify();go("verify",null)}},1400)}
+    else{t.disabled=true;t.classList.add("loading");t.innerHTML='<span class="spin" aria-hidden="true"></span>Connecting…';setTimeout(function(){if(nav.screen==="auth"){startVerify();go("verify",null)}},1000)}
+    return true}
+  case "sendreset":{var fe2=$("#fe");clearerr(fe2);if(!/^\S+@\S+\.\S+$/.test(fe2.value.trim())){fielderr(fe2,"Enter a valid email, like name@example.com");fe2.focus();return true}
+    t.disabled=true;t.classList.add("loading");t.innerHTML='<span class="spin" aria-hidden="true"></span>Sending…';setTimeout(function(){if(nav.screen==="forgot"){FORGOT=true;FTIME=Date.now();render(false,"fade")}},800);return true}
+  case "resendreset":{toast("Link sent again (simulation)");return true}
+  case "otpshow":{SHOWOTP=!SHOWOTP;refreshVerify();return true}
+  case "resend":{if(t.disabled)return true;OTP="";VS={st:"idle"};REV=-1;EXPLEFT=90;RESLEFT=20;refreshVerify();toast("New code sent (simulation)");return true}
+  case "verify":{submitOtp();return true}
+  case "theme":{S.theme=id;persist();applyPrefs();return true}
+  case "conn_":return true;
+  case "connect":{if(CS==="connecting")return true;CS="connecting";render(false);setTimeout(function(){if(CS!=="connecting")return;if(S.demoErr){CS="error"}else{CS="on";S.conn="on";persist();toast("Connected (simulated)")}if(nav.screen==="conn")render(false)},1500);return true}
+  case "disconnect":{S.conn="off";CS="off";persist();closeSheet();if(nav.screen==="conn")render(false);toast("Disconnected");return true}
+  case "topic":{HS.topic=id;HS.step=1;swapIn($("#helpc"),helpBody(),1);return true}
+  case "helpback":{HS.step=0;swapIn($("#helpc"),helpBody(),-1);return true}
+  case "clearctx":{S.ctx=null;persist();HS.topic=null;swapIn($("#helpc"),helpBody(),1);return true}
+  case "addsugg":{var sl=suggList(),q0=sl[+t.dataset.q];if(q0){S.qs.push(q0);S.qSaved=false;persist();render(false);toast("Added to your questions")}return true}
+  case "saveret":{histAdd();S.qSaved=true;S.resume=S.ctx&&ITEMS[S.ctx]?S.ctx:null;persist();toast("Saved");reset2("home","fade");return true}
+  case "returnreq":{if(S.ctx&&ITEMS[S.ctx])go("detail",S.ctx,true,"pop");return true}
+  case "resume":{var r=S.resume;S.resume=null;persist();if(r&&ITEMS[r]){S.ctx=r;HS={topic:"doc",step:1};go("support",null,true,"push")}return true}
+  case "openhelp":{HS={topic:"ben",step:1};go("support")  ;return true}
+  case "incq":{var q=INCQ[+t.dataset.i];if(q&&S.qs.indexOf(q)<0){S.qs.push(q);S.qSaved=false;persist();render(false);toast("Added to your questions")}return true}
+  case "askpay":{return true}
+  case "toggle":{S.open[id]=!S.open[id];persist();var b=document.getElementById("g-"+id);if(b){b.classList.toggle("open",!!S.open[id]);b.firstElementChild.inert=!S.open[id]}t.setAttribute("aria-expanded",!!S.open[id]);return true}
+  case "more":{MORE=!MORE;t.setAttribute("aria-expanded",MORE);var m=$("#moreacc");m.classList.toggle("open",MORE);m.firstElementChild.inert=!MORE;return true}
+  case "copymsg":{var ta=$("#msg");copyText(ta.value,ta,"Message copied");t.classList.add("success");t.innerHTML=I("check")+"Copied";setTimeout(function(){if(t.isConnected){t.classList.remove("success");t.textContent="Copy message"}},1800);return true}
+  case "shwho":{SH.who=id;swapIn($("#shc"),shareBody(),0);return true}
+  case "shwhat":{SH.what=id;[].forEach.call(document.querySelectorAll("#shc .opt[data-act=shwhat]"),function(b){b.setAttribute("aria-pressed",b.dataset.id===id?"true":"false")});return true}
+  case "shnext":{if(SH.step===0&&!SH.who)return true;SH.step++;swapIn($("#shc"),shareBody(),1);return true}
+  case "shback":{SH.step=Math.max(0,SH.step-1);swapIn($("#shc"),shareBody(),-1);return true}
+  case "shconfirm":{var w=WHAT.filter(function(x){return x[0]===SH.what})[0];S.trusted={who:SH.who,what:w[1]};persist();SH.done=true;swapIn($("#shc"),shareBody(),1);return true}
+  case "shareremove":{S.trusted=null;persist();SH={step:0,who:null,what:"status",done:false};render(false);toast("Removed");return true}
+  case "shareask":{var q2="How do I review or change my trusted-person authorization?";if(S.qs.indexOf(q2)<0)S.qs.push(q2);S.ctx=null;persist();HS={topic:"other",step:1};go("support");return true}
+  }
+  return false;
+}
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-go],[data-act],[data-tab]");if(!t)return;
+  if(t.dataset.act==="closesheet"&&e.target.closest(".sheet")&&!e.target.closest(".iconbtn"))return;
+  if(t.dataset.tab){closeSheet();if(t.dataset.tab===nav.screen)return;if(t.dataset.tab==="support"){HS={topic:null,step:0}}reset2(t.dataset.tab,"fade");return}
+  if(t.dataset.go){if($("#sheetRoot .sheet"))$("#sheetRoot").innerHTML="";if(t.dataset.go==="forgot")FORGOT=false;if(t.dataset.go==="share")SH={step:0,who:null,what:"status",done:false};go(t.dataset.go,t.dataset.id||null,!!t.dataset.replace,t.dataset.kind||(t.dataset.replace?"fade":"push"));return}
+  var a=t.dataset.act,id=t.dataset.id;
+  var sg=t.closest(".seg2");if(sg&&a){var bs=[].slice.call(sg.querySelectorAll("button"));sg.style.setProperty("--i",bs.indexOf(t));bs.forEach(function(b){b.setAttribute("aria-pressed",b===t?"true":"false")})}
+  if(extra(a,t,id))return;
+  if(a==="back")back();
+  else if(a==="skiptoland"){nav={screen:"land",id:0,via:"fade"};render(false,"fade")}
+  else if(a==="slide"){var fw=+id>(+nav.id||0);nav={screen:"land",id:+id,via:"push"};render(false,fw?"push":"pop")}
+  else if(a==="authtab"){if(AUTH===id)return;AUTH=id;var tb=t.parentNode;tb.style.setProperty("--i",id==="in"?0:1);[].forEach.call(tb.querySelectorAll("button"),function(b){b.setAttribute("aria-selected",b===t?"true":"false")});var f=$("#authForm"),btn=$("#authBtn"),dir=id==="up"?1:-1;
+    if(isReduced()){f.innerHTML=authForm();btn.textContent=id==="in"?"Sign in":"Create account"}
+    else{var a1=f.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX("+(-14*dir)+"px)"}],{duration:130,easing:"ease-in"});a1.onfinish=function(){f.innerHTML=authForm();btn.textContent=id==="in"?"Sign in":"Create account";f.animate([{opacity:0,transform:"translateX("+(14*dir)+"px)"},{opacity:1,transform:"none"}],{duration:220,easing:"cubic-bezier(.22,.8,.24,1)"})}}}
+  else if(a==="eye"){var inp=$("#"+id);if(inp){var show=inp.type==="password";inp.type=show?"text":"password";t.innerHTML=I(show?"eyeoff":"eye");t.setAttribute("aria-label",show?"Hide password":"Show password")}}
+  else if(a==="signin"){if(t.disabled)return;var em=$("#em"),pw=$("#pw");if(em&&!em.value.trim()){toast("Enter your email");return}if(pw&&!pw.value){toast("Enter your password");return}OTP="";t.disabled=true;t.innerHTML='<span class="spin" aria-hidden="true"></span>Signing in…';setTimeout(function(){if(nav.screen==="auth"){go("verify",null)}},850)}
+  else if(a==="sendreset"){FORGOT=true;render(false,"fade")}
+  else if(a==="resendreset"){toast("Link sent again")}
+  else if(a==="backtosignin"){FORGOT=false;AUTH="in";reset2("auth","pop")}
+  else if(a==="savepw"){toast("Password updated");back()}
+  else if(a==="verify"){submitOtp()}
+  else if(a==="otpfocus"){showKb("num")}
+  else if(a==="resend"){toast("New code sent")}
+  else if(a==="resetdata"){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}
+  else if(a==="signout"){closeSheet();AUTH="in";reset2("auth","down")}
+  else if(a==="theme"){S.theme=id;persist();applyPrefs()}
+  else if(a==="text"){S.text=id;persist();applyPrefs()}
+  else if(a==="sw"){S[id]=!S[id];persist();t.setAttribute("aria-checked",S[id]?"true":"false");if(id==="calm")toast(S.calm?"Motion reduced":"Motion on")}
+  else if(a==="intronext"){go(S.consent?"overview":"consent")}
+  else if(a==="pref"){S.prefSimple=!S.prefSimple;persist();t.setAttribute("aria-checked",S.prefSimple?"true":"false")}
+  else if(a==="consentgo"){var ack=$("#ack");if(!ack.checked){$("#ackerr").hidden=false;ack.focus();return}S.consent=true;S.mode=S.prefSimple?"simple":"all";persist();go("overview")}
+  else if(a==="sheet")openSheet(id);
+  else if(a==="closesheet")closeSheet();
+  else if(a==="toggle"){S.open[id]=!S.open[id];persist();render(false)}
+  else if(a==="more"){MORE=!MORE;t.setAttribute("aria-expanded",MORE);t.nextElementSibling.hidden=!MORE}
+  else if(a==="mode"){S.mode=id;persist();var tbd=$("#todayBody");if(tbd){tbd.innerHTML=todayBody();if(!isReduced())tbd.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:260,easing:"cubic-bezier(.22,.8,.24,1)"})}}
+  else if(a==="askpay"){var pq="What happens to my payments during the transition?";if(S.qs.indexOf(pq)<0)S.qs.push(pq);S.ctx=null;persist();go("support")}
+  else if(a==="addsugg"){var sl=suggList(),q0=sl[+t.dataset.q];if(q0){S.qs.push(q0);S.qSaved=false;persist();render(false);toast("Added to your questions")}}
+  else if(a==="saveret"){S.qSaved=true;persist();toast("Saved");if(S.ctx&&ITEMS[S.ctx]){go("detail",S.ctx,true,"pop")}else{var st0=$("#qstat");if(st0)st0.textContent="Saved."}}
+  else if(a==="done"&&t.dataset.btn){S.done[id]=true;persist();toast("Marked done. Sun Life’s status is unchanged.");render(false)}
+  else if(a==="save"){S.resume=id;persist();go("saved",null,true,"fade")}
+  else if(a==="later"){reset2("home","fade")}
+  else if(a==="resume"){S.resume=null;persist();S.mode="simple";reset2("today","fade")}
+  else if(a==="copymsg"){var ta=$("#msg");copyText(ta.value,ta,"Message copied")}
+  else if(a==="resetmsg"){delete S.msgs[id];persist();render(false)}
+  else if(a==="addq"){S.qs.push("");S.qSaved=false;persist();render(false);var all=document.querySelectorAll("#qlist textarea");if(all.length)all[all.length-1].focus()}
+  else if(a==="delq"){S.qs.splice(+t.dataset.i,1);S.qSaved=false;persist();render(false)}
+  else if(a==="copyqs"){var txt=S.qs.filter(Boolean).map(function(q,i){return (i+1)+". "+q}).join("\n");var tmp=document.createElement("textarea");tmp.value=txt;tmp.style.cssText="position:fixed;left:-9999px";document.body.appendChild(tmp);copyText(txt,tmp,"Questions copied");setTimeout(function(){tmp.remove()},1500)}
+  else if(a==="saveqs"){S.qSaved=true;persist();var st=$("#qstat");if(st)st.textContent="Saved.";toast("Saved")}
+  else if(a==="reset"){S=fresh();try{localStorage.removeItem(KEY)}catch(x){}applyPrefs();closeSheet();stack=[];nav={screen:"splash",id:null,via:null};AUTH="in";render(false,"fade");toast("Started over")}
+});
+document.addEventListener("change",function(e){
+  var t=e.target;
+  if(t.matches('input[type=checkbox][data-act="done"]')){S.done[t.dataset.id]=t.checked;persist();toast(t.checked?"Marked done. Sun Life’s status is unchanged.":"Removed")}
+  if(t.id==="ack"&&t.checked){$("#ackerr").hidden=true}
+});
+document.addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id==="tsz"){S.text=TS[+t.value];persist();applyPrefs();t.setAttribute("aria-valuetext",TSL[+t.value]);return}
+  if(t.id==="otpnative"){if(VS.st==="expired"||VS.st==="ok"||VS.st==="loading"){t.value=OTP;return}var before=OTP.length;setOtp(t.value);REV=OTP.length>before?OTP.length-1:-1;clearTimeout(revT);revT=setTimeout(function(){REV=-1;if(nav.screen==="verify")refreshVerify()},700);refreshVerify();return}
+  if(t.classList&&t.classList.contains("in"))clearerr(t);
+  if(!t.dataset||!t.dataset.field)return;
+  if(t.dataset.field==="msg"){S.msgs[t.dataset.id]=t.value}
+  else if(t.dataset.field==="q"){S.qs[+t.dataset.i]=t.value;S.qSaved=false;var st=$("#qstat");if(st)st.textContent=""}
+  else if(t.dataset.field==="form"){var ff=fstate(t.dataset.id);ff.v[t.dataset.k]=t.value;ff.savedAt=0;var fs=$("#fstat span");if(fs)fs.textContent="Your draft saves as you type"}
+  else if(t.dataset.field==="reply"){S.inbox.draft[t.dataset.id]=t.value}
+  else if(t.dataset.field==="hist"){var hh=S.hist[+t.dataset.i];if(hh)hh.a=t.value}
+  else if(t.dataset.field==="notes"){S.notes=t.value;S.qSaved=false;var s2=$("#qstat");if(s2)s2.textContent=""}
+  persist();
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("#sheetRoot .sheet"))closeSheet()});
+
+/* ---------- keyboard ---------- */
+var KB={open:false,mode:"alpha",target:null,shift:false,sym:false};
+function kbHtml(){
+  var k=function(c,x){return '<button class="key '+(x||"")+'" data-k="'+c+'" tabindex="-1" aria-label="'+(({del:"Delete",shift:"Shift",sym:"Numbers",abc:"Letters",space:"Space",ret:"Return"})[c]||c)+'">'},DEL='<svg class="i" viewBox="0 0 24 24"><path d="M9 6h11a1 1 0 011 1v10a1 1 0 01-1 1H9l-6-6z"/><path d="M13 10l4 4m0-4l-4 4"/></svg>';
+  if(KB.mode==="num"){
+    var Lt={2:"ABC",3:"DEF",4:"GHI",5:"JKL",6:"MNO",7:"PQRS",8:"TUV",9:"WXYZ"},h='<div class="kbi"><div class="pad">';
+    for(var i=1;i<=9;i++)h+=k(i)+i+'<small>'+(Lt[i]||"")+'</small></button>';
+    h+='<span></span>'+k(0)+'0</button>'+k("del","fn")+DEL+'</button></div><div class="tail"></div></div>';return h}
+  var rows=KB.sym?["1234567890","-/:;()$&@\"","#+=,.?!'"]:["qwertyuiop","asdfghjkl","zxcvbnm"],h2='<div class="kbi">';
+  var cap=function(c){return KB.shift&&!KB.sym?c.toUpperCase():c};
+  h2+='<div class="krow">'+rows[0].split("").map(function(c){return k(cap(c))+cap(c)+'</button>'}).join("")+'</div>';
+  h2+='<div class="krow" style="padding:0 '+(KB.sym?0:18)+'px">'+rows[1].split("").map(function(c){return k(c)+c+'</button>'}).join("")+'</div>';
+  h2+='<div class="krow">'+(KB.sym?k("noop","fn w15")+'#+='+'</button>':k("shift","fn w15"+(KB.shift?" on":""))+'<svg class="i" viewBox="0 0 24 24"><path d="M12 4l8 9h-5v6H9v-6H4z"'+(KB.shift?' fill="currentColor"':'')+'/></svg></button>')+rows[2].split("").map(function(c){return k(cap(c))+cap(c)+'</button>'}).join("")+k("del","fn w15")+DEL+'</button></div>';
+  h2+='<div class="krow">'+(KB.sym?k("abc","fn w2")+'ABC':k("sym","fn w2")+'123')+'</button>'+k("space","w5")+'space</button>'+k("ret","fn w2 ret")+'return</button></div><div class="tail"></div></div>';
+  return h2;
+}
+function showKb(mode,target){
+  var el=$("#kb");KB.mode=mode;KB.target=target||null;if(mode==="alpha"&&!KB.open)KB.shift=true;
+  el.innerHTML=kbHtml();el.classList.add("open");$("#device").classList.add("kbopen");KB.open=true;
+  if(target){setTimeout(function(){try{target.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},320)}
+}
+function hideKb(instant){
+  var el=$("#kb");if(!KB.open&&!el.classList.contains("open"))return;
+  KB.open=false;$("#device").classList.remove("kbopen");
+  if(instant){var t=el.style.transition;el.style.transition="none";el.classList.remove("open");void el.offsetHeight;el.style.transition=t}else el.classList.remove("open");
+  var ae=document.activeElement;if(ae&&ae.matches&&ae.matches("textarea,input.in"))ae.blur();
+}
+function setOtp(v){OTP=String(v).replace(/\D/g,"").slice(0,OTPLEN);if(VS.st==="bad"||VS.st==="short")VS={st:"idle"}}
+function addDigit(d){if(VS.st==="expired"||VS.st==="loading"||VS.st==="ok"||OTP.length>=OTPLEN)return;setOtp(OTP+d);REV=OTP.length-1;clearTimeout(revT);revT=setTimeout(function(){REV=-1;if(nav.screen==="verify")refreshVerify()},700);refreshVerify()}
+function delDigit(){if(!OTP.length||VS.st==="expired"||VS.st==="loading"||VS.st==="ok")return;setOtp(OTP.slice(0,-1));REV=-1;refreshVerify()}
+function submitOtp(){
+  if(VS.st==="expired"||VS.st==="loading"||VS.st==="ok")return;
+  if(OTP.length<OTPLEN){VS.st="short";refreshVerify();var c=$("#codes");if(c){c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake")}showKb("num");return}
+  VS.st="loading";refreshVerify();hideKb();
+  setTimeout(function(){if(nav.screen!=="verify")return;
+    if(OTP.length===OTPLEN){VS.st="ok";S.conn="on";CS="on";persist();refreshVerify();setTimeout(function(){if(nav.screen==="verify")go("home",null,true,"fade")},700)}
+    else{VS.st="bad";refreshVerify();var c2=$("#codes");if(c2){c2.classList.remove("shake");void c2.offsetWidth;c2.classList.add("shake")}}},800);
+}
+function typeInto(t,ch){t.setRangeText(ch,t.selectionStart,t.selectionEnd,"end");t.dispatchEvent(new Event("input",{bubbles:true}))}
+function backspace(t){var a=t.selectionStart,b=t.selectionEnd;if(a===b&&a>0){t.setRangeText("",a-1,a,"end")}else if(a!==b){t.setRangeText("",a,b,"end")}t.dispatchEvent(new Event("input",{bubbles:true}))}
+$("#kb").addEventListener("mousedown",function(e){e.preventDefault()});
+$("#kb").addEventListener("click",function(e){
+  var b=e.target.closest("[data-k]");if(!b)return;var k=b.dataset.k;
+  if(KB.mode==="num"){if(k==="del")delDigit();else addDigit(k);return}
+  var t=KB.target;if(!t||!document.contains(t))return;t.focus();
+  if(k==="shift"){KB.shift=!KB.shift;$("#kb").innerHTML=kbHtml()}
+  else if(k==="sym"){KB.sym=true;$("#kb").innerHTML=kbHtml()}
+  else if(k==="abc"){KB.sym=false;$("#kb").innerHTML=kbHtml()}
+  else if(k==="del")backspace(t);
+  else if(k==="space")typeInto(t," ");
+  else if(k==="ret"){if(t.tagName==="INPUT")hideKb();else typeInto(t,"\n")}
+  else if(k==="noop"){}
+  else{typeInto(t,k);if(KB.shift&&!KB.sym){KB.shift=false;$("#kb").innerHTML=kbHtml()}}
+});
+document.addEventListener("focusin",function(e){var t=e.target;if(t&&t.matches&&t.matches("textarea,input.in")){t.setAttribute("inputmode","none");KB.sym=false;KB.shift=!t.value;showKb("alpha",t)}});
+document.addEventListener("click",function(e){if(!KB.open)return;if(e.target.closest("#kb")||e.target.closest("textarea")||e.target.closest("input.in")||e.target.closest("#codes"))return;if(e.target.closest("[data-act='verify']")||e.target.closest("[data-act='signin']"))return;hideKb()});
+document.addEventListener("keydown",function(e){
+  if(nav.screen!=="verify"||$("#sheetRoot .sheet"))return;
+  if(e.key==="Enter"){submitOtp();return}
+  if(e.target&&e.target.id==="otpnative")return;
+  if(/^[0-9]$/.test(e.key)){addDigit(e.key);e.preventDefault()}else if(e.key==="Backspace"){delDigit();e.preventDefault()}
+});
+document.addEventListener("paste",function(e){if(nav.screen!=="verify")return;var tx=(e.clipboardData||window.clipboardData).getData("text"),d=String(tx).replace(/\D/g,"");if(!d)return;e.preventDefault();if(VS.st==="expired"||VS.st==="ok"||VS.st==="loading")return;setOtp(d);REV=-1;refreshVerify()});
+/* ---------- fit the 440 x 956 phone to the window ---------- */
+function fit(){var ph=$("#phone"),dv=$("#device"),narrow=window.innerWidth<=500;var s=Math.min(1,(window.innerWidth-(narrow?0:52))/440,(window.innerHeight-(narrow?0:72))/956);if(!(s>0.2))s=0.2;ph.style.width=(440*s)+"px";ph.style.height=(956*s)+"px";dv.style.transform="scale("+s+")"}
+window.addEventListener("resize",fit);fit();
+applyPrefs();
+window.__bridge={expire:function(){EXPLEFT=0;vtick()}};
+render(false);
+})();
+
+(function(){var t=document.getElementById("touch");if(!t)return;var raf=0,x=0,y=0;
+function mv(e){x=e.clientX;y=e.clientY;t.classList.add("on");if(!raf)raf=requestAnimationFrame(function(){raf=0;t.style.left=x+"px";t.style.top=y+"px"})}
+document.addEventListener("pointermove",function(e){if(e.pointerType==="mouse")mv(e)},{passive:true});
+document.addEventListener("pointerdown",function(e){if(e.pointerType==="mouse"){mv(e);t.classList.add("down")}});
+document.addEventListener("pointerup",function(){t.classList.remove("down")});
+document.addEventListener("pointerleave",function(){t.classList.remove("on")});
+document.documentElement.addEventListener("mouseleave",function(){t.classList.remove("on")});})();
+</script>
