@@ -1,4 +1,4 @@
-<title>Sun Life Bridge</title>
+<title>Sun Life StepWise</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
@@ -601,7 +601,7 @@ function clearerr(el){var f=el.closest&&el.closest(".field");if(!f)return;f.clas
 function fmt(n){return Math.floor(n/60)+":"+("0"+(n%60)).slice(-2)}
 function startVerify(){OTP="";VS={st:"idle"};REV=-1;SHOWOTP=false;EXPLEFT=90;RESLEFT=20}
 function vSplash(){
-  return '<div class="splash hero" data-act="skiptoland"><button class="btn plain skipsp" data-act="skiptoland">Skip</button><span class="art" style="color:#fff">'+bridgeArt(240)+'</span><span class="word">Sun Life Bridge</span><span class="tag">Your next step, made clearer.</span></div>';
+  return '<div class="splash hero" data-act="skiptoland"><button class="btn plain skipsp" data-act="skiptoland">Skip</button><span class="art" style="color:#fff">'+bridgeArt(240)+'</span><span class="word">Sun Life StepWise</span><span class="tag">Your next step, made clearer.</span></div>';
 }
 var SLIDES=[["See what’s changing","What’s on file, what needs updating, and what’s new for LTD."],["Know who does what","You, your doctor, HR and Sun Life each have a part."],["One step at a time","Save your place and come back whenever you’re ready."]];
 function obState(i){var last=i===SLIDES.length-1;return {back:i>0,skip:!last,cta:last?"Get started":"Next"}}
@@ -621,7 +621,7 @@ function setOb(i,dir){
 function authForm(){var si=AUTH==="in";return (si?'':field("nm","Full name","user","Amira Rahman"))+field("em","Email","mail","amira@example.com")+field("pw","Password","lock","sunlife123","password")+(si?'<button class="linkbtn" style="align-self:flex-end;min-height:36px" data-go="forgot">Forgot password?</button>':'<p class="muted" style="margin:0">At least 8 characters.</p>')}
 function vAuth(){
   var si=AUTH==="in";
-  return '<div class="pg" style="gap:18px;padding-top:30px"><div class="brandrow"><span class="sun" aria-hidden="true"></span>Sun Life Bridge</div>'+
+  return '<div class="pg" style="gap:18px;padding-top:30px"><div class="brandrow"><span class="sun" aria-hidden="true"></span>Sun Life StepWise</div>'+
   '<div class="head"><h1 tabindex="-1">Welcome to Bridge</h1><p class="lead">Sign in or create an account.</p></div>'+
   '<div class="authtabs" role="tablist" style="--i:'+(si?0:1)+'"><span class="ind"></span><button role="tab" aria-selected="'+si+'" data-act="authtab" data-id="in">Sign in</button><button role="tab" aria-selected="'+!si+'" data-act="authtab" data-id="up">Sign up</button></div>'+
   '<div class="stack" style="gap:14px;min-height:292px" id="authForm">'+authForm()+'</div>'+
@@ -887,7 +887,7 @@ function renderNow(moveFocus){
   var hero=!!c[4];$("#statusbar").classList.toggle("light",hero);$("#homebar").classList.toggle("light",hero);$("#sbSpace").style.display=hero?"none":"";$("#homeSpace").style.display=hero?"none":"";
   $("#appbar").hidden=!c[1];
   var br=$("#brand");
-  if(["home","intro","consent"].indexOf(nav.screen)>-1)br.innerHTML='<span class="sun" aria-hidden="true"></span><span>Sun Life Bridge</span>';
+  if(["home","intro","consent"].indexOf(nav.screen)>-1)br.innerHTML='<span class="sun" aria-hidden="true"></span><span>Sun Life StepWise</span>';
   else br.innerHTML=TITLE[nav.screen]?esc(TITLE[nav.screen]):"";
   $("#acctBtn").hidden=nav.screen!=="home";
   $("#privBtn").hidden=!(c[3]||nav.screen==="intro"||nav.screen==="consent");
